@@ -1,12 +1,24 @@
 import userModel from "../model/user.model";
 import jwt from "jsonwebtoken";
 import { config } from "../config/config.js";
-import { cookie } from "express-validator";
 
-const generateToken = async (user) => {
-  const { _id, email } = user;
-  return jwt.sign({ _id, email }, config.JWT_SECRET, {
+const sendTokenResponse = async (user, res, message) => {
+  const { _id, email, contact, fullname, role } = user;
+  const token = jwt.sign({ _id, email }, config.JWT_SECRET, {
     expiresIn: "7d",
+  });
+  res.cookie("token", token);
+  res.status(201).json({
+    success: true,
+    message: `${message}`,
+    user: {
+      id: _id,
+      email,
+      contact,
+      fullname,
+      role,
+    },
+    token,
   });
 };
 
@@ -37,14 +49,34 @@ export async function register(req, res) {
         .json({ success: false, message: "User registration failed" });
     }
 
-    const token = generateToken(user);
-    cookie("token", token);
-    res.status(201).json({
-      success: true,
-      message: "User registered successfully",
-      user,
-      token,
+    await sendTokenResponse(user, res, "User registered successfully");
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+}
+
+export async function login(req, res) {āæ
+  const { email, contact, password } = req.body;
+
+  try {
+    const user = await userModel.findOne({
+      $or: [{ email }, { contact }],
     });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid email or password" });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid email or password" });
+    }
+
+    await sendTokenResponse(user, res, "User logged in successfully");
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
