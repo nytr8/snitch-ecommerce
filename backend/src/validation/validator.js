@@ -1,8 +1,8 @@
 import { body } from "express-validator";
-
+import { validationResult } from "express-validator";
 // ✅ Register Validation
 
-export const validate = (req, res, next) => {
+const validate = (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -36,7 +36,7 @@ export const registerValidator = [
     .withMessage("Password is required")
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters"),
-  validate(),
+  validate,
 ];
 
 // ✅ Login Validation
@@ -49,5 +49,5 @@ export const loginValidator = [
     .withMessage("Enter a valid email"),
 
   body("password").trim().notEmpty().withMessage("Password is required"),
-  validate(),
+  validate,
 ];

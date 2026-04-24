@@ -1,4 +1,4 @@
-import userModel from "../model/user.model";
+import userModel from "../model/user.model.js";
 import jwt from "jsonwebtoken";
 import { config } from "../config/config.js";
 
@@ -56,7 +56,8 @@ export async function register(req, res) {
   }
 }
 
-export async function login(req, res) {āæ
+export async function login(req, res) {
+  āæ;
   const { email, contact, password } = req.body;
 
   try {
