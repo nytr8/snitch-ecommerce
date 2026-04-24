@@ -21,16 +21,14 @@ const productSchema = new mongoose.Schema(
         required: true,
       },
     },
-    images: {
-      url: {
-        type: String,
-        required: true,
+    images: [
+      {
+        url: {
+          type: String,
+          required: true,
+        },
       },
-      alt: {
-        type: String,
-        required: true,
-      },
-    },
+    ],
     seller: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",

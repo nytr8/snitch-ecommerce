@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
-import userModel from "../model/user.model";
+import userModel from "../model/user.model.js";
 
-export const verifyUser = async (req, res, next) => {
+export const authenticateSeller = async (req, res, next) => {
   const token = req.cookies.token;
   if (!token) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -11,6 +11,9 @@ export const verifyUser = async (req, res, next) => {
     const user = await userModel.findById(decoded.id);
     if (!user) {
       return res.status(401).json({ message: "Unauthorized" });
+    }
+    if (user.role !== "seller") {
+      return res.status(403).json({ message: "Forbidden" });
     }
     req.user = user;
     next();
