@@ -1,8 +1,9 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import authRouter from "./routes/auth.router.js";
+import authRouter from "./routes/auth.routes.js";
 import cookieParser from "cookie-parser";
+import productRouter from "./routes/product.routes.js";
 const app = express();
 
 app.use(morgan("dev"));
@@ -16,5 +17,6 @@ app.use(
   }),
 );
 app.use("/api/auth", authRouter);
+app.use("/api/products", productRouter);
 
 export default app;
