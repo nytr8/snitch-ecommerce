@@ -7,10 +7,11 @@ export const createProduct = async (req, res) => {
   try {
     const images = await Promise.all(
       req.files.map(async (file) => {
-        await uploadImage({
+        const res = await uploadImage({
           buffer: file.buffer,
           fileName: file.originalname,
         });
+        return { url: res.url };
       }),
     );
     const product = await productModel.create({

@@ -10,6 +10,7 @@ const client = new ImageKit({
 export const uploadImage = async ({ buffer, fileName, folder = "snitch" }) => {
   const result = await client.files.upload({
     file: await toFile(Buffer.from(buffer), fileName),
+    fileName,
     folder,
   });
 
