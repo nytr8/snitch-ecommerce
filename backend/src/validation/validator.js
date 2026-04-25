@@ -16,7 +16,7 @@ const validate = (req, res, next) => {
 };
 
 export const registerValidator = [
-  body("name")
+  body("fullname")
     .trim()
     .notEmpty()
     .withMessage("Name is required")

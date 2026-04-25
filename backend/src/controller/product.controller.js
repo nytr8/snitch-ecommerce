@@ -3,8 +3,8 @@ import { uploadImage } from "../services/storage.service.js";
 
 export const createProduct = async (req, res) => {
   const seller = req.user;
+  const { title, description, priceAmount, priceCurrency } = req.body;
   try {
-    const { title, description, price } = req.body;
     const images = await Promise.all(
       req.files.map(async (file) => {
         await uploadImage({
@@ -17,11 +17,11 @@ export const createProduct = async (req, res) => {
       title,
       description,
       price: {
-        amount: price,
-        currency: "INR",
+        amount: priceAmount,
+        currency: priceCurrency,
       },
       images,
-      seller: seller.id,
+      seller: seller._id,
     });
     res.status(201).json({ message: "Product created successfully", product });
   } catch (error) {

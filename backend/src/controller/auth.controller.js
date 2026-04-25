@@ -4,7 +4,7 @@ import { config } from "../config/config.js";
 
 const sendTokenResponse = async (user, res, message) => {
   const { _id, email, contact, fullname, role } = user;
-  const token = jwt.sign({ id: _id, email, role }, config.JWT_SECRET, {
+  const token = jwt.sign({ _id, email, role }, config.JWT_SECRET, {
     expiresIn: "7d",
   });
   res.cookie("token", token);
@@ -12,7 +12,6 @@ const sendTokenResponse = async (user, res, message) => {
     success: true,
     message: `${message}`,
     user: {
-      id: _id,
       email,
       contact,
       fullname,
@@ -32,7 +31,7 @@ export async function register(req, res) {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: `User with ${email} or ${contact} already exists`,
+        message: `User with same email or contact already exists`,
       });
     }
 
