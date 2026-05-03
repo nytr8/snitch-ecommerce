@@ -22,7 +22,7 @@ const sendTokenResponse = async (user, res, message) => {
 };
 
 export async function register(req, res) {
-  const { fullname, contact, email, password } = req.body;
+  const { fullname, contact, email, password, role } = req.body;
 
   try {
     const existingUser = await userModel.findOne({
@@ -40,6 +40,7 @@ export async function register(req, res) {
       contact,
       email,
       password,
+      role,
     });
 
     if (!user) {
