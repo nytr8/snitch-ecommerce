@@ -37,7 +37,6 @@ export const useAuth = () => {
       dispatch(setLoading(false));
     }
   };
-
   const handleLogin = async ({ email, password }) => {
     dispatch(setLoading(true));
     dispatch(setError(null));
@@ -54,6 +53,20 @@ export const useAuth = () => {
       dispatch(setLoading(false));
     }
   };
-
-  return { handleRegister, handleLogin };
+  const handleGetMe = async () => {
+    dispatch(setLoading(true));
+    dispatch(setError(null));
+    try {
+      const result = await getMe();
+      dispatch(setUser(result.user));
+      return { success: true, data: result };
+    } catch (error) {
+      const message = getErrorMessage(error, "Failed to fetch user data");
+      dispatch(setError(message));
+      return { success: false, message };
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+  return { handleRegister, handleLogin, handleGetMe };
 };

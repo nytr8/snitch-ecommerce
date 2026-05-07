@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hook/useAuth";
 
-const Login = ({ onSwitchToRegister }) => {
+const Login = () => {
+  const navigate = useNavigate();
   const { handleLogin } = useAuth();
   const { loading, error } = useSelector((state) => state.auth);
   const [formData, setFormData] = useState({
@@ -28,86 +30,121 @@ const Login = ({ onSwitchToRegister }) => {
     if (result.success) {
       setSuccessMessage("Login successful. Welcome back!");
     }
+    navigate("/");
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-10">
-      <div className="mx-auto w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
-        <h1 className="text-2xl font-semibold text-slate-900">Sign in</h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Access your account to continue shopping.
-        </p>
-
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+    <div className="page-shell min-h-screen px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto grid w-full max-w-6xl gap-5 lg:grid-cols-[1.1fr_1fr]">
+        <aside className="surface-card fade-up flex flex-col justify-between rounded-[2rem] p-8 sm:p-10">
           <div>
-            <label
-              className="mb-1 block text-sm font-medium text-slate-700"
-              htmlFor="email"
-            >
-              Email
-            </label>
-            <input
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-slate-500"
-              id="email"
-              name="email"
-              onChange={handleChange}
-              placeholder="you@example.com"
-              required
-              type="email"
-              value={formData.email}
-            />
+            <span className="pill-tag mb-4">SNITCH CLUB</span>
+            <h1 className="display-font text-4xl leading-tight sm:text-5xl">
+              Style Starts With Confidence.
+            </h1>
+            <p className="mt-4 max-w-md text-sm text-[var(--text-muted)] sm:text-base">
+              Sign in to track orders, unlock tailored recommendations, and save
+              your best looks.
+            </p>
           </div>
 
-          <div>
-            <label
-              className="mb-1 block text-sm font-medium text-slate-700"
-              htmlFor="password"
-            >
-              Password
-            </label>
-            <input
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-slate-500"
-              id="password"
-              name="password"
-              onChange={handleChange}
-              placeholder="Enter your password"
-              required
-              type="password"
-              value={formData.password}
-            />
+          <div className="mt-10 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-[var(--border-soft)] bg-white/80 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
+                Member Benefit
+              </p>
+              <p className="mt-2 text-sm font-semibold">Priority support</p>
+            </div>
+            <div className="rounded-2xl border border-[var(--border-soft)] bg-white/80 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
+                Member Benefit
+              </p>
+              <p className="mt-2 text-sm font-semibold">Early access drops</p>
+            </div>
+          </div>
+        </aside>
+
+        <section className="surface-card fade-up rounded-[2rem] p-6 sm:p-8 lg:p-10">
+          <div className="mb-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
+              Welcome Back
+            </p>
+            <h2 className="display-font mt-2 text-3xl sm:text-4xl">Sign In</h2>
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
+              Access your account to continue shopping.
+            </p>
           </div>
 
-          {error ? (
-            <p className="rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700">
-              {error}
-            </p>
-          ) : null}
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div>
+              <label
+                className="mb-1.5 block text-sm font-semibold"
+                htmlFor="email"
+              >
+                Email
+              </label>
+              <input
+                className="field-input"
+                id="email"
+                name="email"
+                onChange={handleChange}
+                placeholder="you@example.com"
+                required
+                type="email"
+                value={formData.email}
+              />
+            </div>
 
-          {successMessage ? (
-            <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-              {successMessage}
-            </p>
-          ) : null}
+            <div>
+              <label
+                className="mb-1.5 block text-sm font-semibold"
+                htmlFor="password"
+              >
+                Password
+              </label>
+              <input
+                className="field-input"
+                id="password"
+                name="password"
+                onChange={handleChange}
+                placeholder="Enter your password"
+                required
+                type="password"
+                value={formData.password}
+              />
+            </div>
 
-          <button
-            className="w-full rounded-md bg-slate-900 px-4 py-2 font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70"
-            disabled={loading}
-            type="submit"
-          >
-            {loading ? "Signing in..." : "Login"}
-          </button>
-        </form>
+            {error ? (
+              <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                {error}
+              </p>
+            ) : null}
 
-        <p className="mt-4 text-center text-sm text-slate-600">
-          New here?{" "}
-          <button
-            className="font-medium text-slate-900 underline"
-            onClick={onSwitchToRegister}
-            type="button"
-          >
-            Create an account
-          </button>
-        </p>
+            {successMessage ? (
+              <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+                {successMessage}
+              </p>
+            ) : null}
+
+            <button
+              className="btn-primary w-full"
+              disabled={loading}
+              type="submit"
+            >
+              {loading ? "Signing in..." : "Login"}
+            </button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-[var(--text-muted)]">
+            New here?{" "}
+            <Link
+              className="font-semibold text-[var(--text-primary)] underline"
+              to="/register"
+            >
+              Create an account
+            </Link>
+          </p>
+        </section>
       </div>
     </div>
   );

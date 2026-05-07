@@ -28,3 +28,13 @@ export const login = async ({ email, password }) => {
     throw error.response?.data || new Error("Login failed");
   }
 };
+
+export const getMe = async () => {
+  try {
+    const response = await api.get("/me");
+    return response.data;
+  } catch (error) {
+    console.error("GetMe error:", error.response?.data || error.message);
+    throw error.response?.data || new Error("Failed to fetch user data");
+  }
+};

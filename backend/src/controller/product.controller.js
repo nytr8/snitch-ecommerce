@@ -43,3 +43,35 @@ export const getSellerProducts = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+export const getAllProducts = async (req, res) => {
+  try {
+    const products = await productModel.find().populate("seller", "name email");
+    res.status(200).json({
+      message: "Products fetched successfully",
+      success: true,
+      products,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const getProductById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const product = await productModel
+      .findById(id)
+      .populate("seller", "name email");
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.status(200).json({
+      message: "Product fetched successfully",
+      success: true,
+      product,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};

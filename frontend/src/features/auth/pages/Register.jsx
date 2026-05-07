@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { useAuth } from "../hook/useAuth";
 
-const Register = ({ onSwitchToLogin }) => {
+const Register = () => {
   const { handleRegister } = useAuth();
   const { loading, error } = useSelector((state) => state.auth);
   const [formData, setFormData] = useState({
@@ -23,129 +24,168 @@ const Register = ({ onSwitchToLogin }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setSuccessMessage("");
-
-    await handleRegister(formData);
+    const result = await handleRegister(formData);
+    if (result?.success) {
+      setSuccessMessage("Account created successfully. You can now sign in.");
+      setFormData({
+        fullname: "",
+        contact: "",
+        email: "",
+        password: "",
+      });
+    } else {
+      setSuccessMessage("");
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-10">
-      <div className="mx-auto w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
-        <h1 className="text-2xl font-semibold text-slate-900">
-          Create account
-        </h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Join us to track orders and checkout faster.
-        </p>
-
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-          <div>
-            <label
-              className="mb-1 block text-sm font-medium text-slate-700"
-              htmlFor="fullname"
-            >
-              Full name
-            </label>
-            <input
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-slate-500"
-              id="fullname"
-              name="fullname"
-              onChange={handleChange}
-              placeholder="Your full name"
-              required
-              type="text"
-              value={formData.fullname}
-            />
-          </div>
-
-          <div>
-            <label
-              className="mb-1 block text-sm font-medium text-slate-700"
-              htmlFor="contact"
-            >
-              Contact number
-            </label>
-            <input
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-slate-500"
-              id="contact"
-              name="contact"
-              onChange={handleChange}
-              placeholder="10-digit phone number"
-              required
-              type="tel"
-              value={formData.contact}
-            />
-          </div>
-
-          <div>
-            <label
-              className="mb-1 block text-sm font-medium text-slate-700"
-              htmlFor="email"
-            >
-              Email
-            </label>
-            <input
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-slate-500"
-              id="email"
-              name="email"
-              onChange={handleChange}
-              placeholder="you@example.com"
-              required
-              type="email"
-              value={formData.email}
-            />
-          </div>
-
-          <div>
-            <label
-              className="mb-1 block text-sm font-medium text-slate-700"
-              htmlFor="password"
-            >
-              Password
-            </label>
-            <input
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-slate-500"
-              id="password"
-              name="password"
-              onChange={handleChange}
-              placeholder="At least 6 characters"
-              required
-              type="password"
-              value={formData.password}
-            />
-          </div>
-
-          {error ? (
-            <p className="rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700">
-              {error}
+    <div className="page-shell min-h-screen px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto grid w-full max-w-6xl gap-5 lg:grid-cols-[1fr_1.1fr]">
+        <section className="surface-card fade-up order-2 rounded-[2rem] p-6 sm:p-8 lg:order-1 lg:p-10">
+          <div className="mb-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
+              Join Snitch
             </p>
-          ) : null}
-
-          {successMessage ? (
-            <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-              {successMessage}
+            <h1 className="display-font mt-2 text-3xl sm:text-4xl">
+              Create Account
+            </h1>
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
+              Build your account to save favourites and checkout faster.
             </p>
-          ) : null}
+          </div>
 
-          <button
-            className="w-full rounded-md bg-slate-900 px-4 py-2 font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70"
-            disabled={loading}
-            type="submit"
-          >
-            {loading ? "Creating account..." : "Register"}
-          </button>
-        </form>
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div>
+              <label
+                className="mb-1.5 block text-sm font-semibold"
+                htmlFor="fullname"
+              >
+                Full Name
+              </label>
+              <input
+                className="field-input"
+                id="fullname"
+                name="fullname"
+                onChange={handleChange}
+                placeholder="Your full name"
+                required
+                type="text"
+                value={formData.fullname}
+              />
+            </div>
 
-        <p className="mt-4 text-center text-sm text-slate-600">
-          Already have an account?{" "}
-          <button
-            className="font-medium text-slate-900 underline"
-            onClick={onSwitchToLogin}
-            type="button"
-          >
-            Login
-          </button>
-        </p>
+            <div>
+              <label
+                className="mb-1.5 block text-sm font-semibold"
+                htmlFor="contact"
+              >
+                Contact Number
+              </label>
+              <input
+                className="field-input"
+                id="contact"
+                name="contact"
+                onChange={handleChange}
+                placeholder="10-digit phone number"
+                required
+                type="tel"
+                value={formData.contact}
+              />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label
+                  className="mb-1.5 block text-sm font-semibold"
+                  htmlFor="email"
+                >
+                  Email
+                </label>
+                <input
+                  className="field-input"
+                  id="email"
+                  name="email"
+                  onChange={handleChange}
+                  placeholder="you@example.com"
+                  required
+                  type="email"
+                  value={formData.email}
+                />
+              </div>
+              <div>
+                <label
+                  className="mb-1.5 block text-sm font-semibold"
+                  htmlFor="password"
+                >
+                  Password
+                </label>
+                <input
+                  className="field-input"
+                  id="password"
+                  name="password"
+                  onChange={handleChange}
+                  placeholder="At least 6 characters"
+                  required
+                  type="password"
+                  value={formData.password}
+                />
+              </div>
+            </div>
+
+            {error ? (
+              <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                {error}
+              </p>
+            ) : null}
+
+            {successMessage ? (
+              <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+                {successMessage}
+              </p>
+            ) : null}
+
+            <button className="btn-primary w-full" disabled={loading} type="submit">
+              {loading ? "Creating account..." : "Register"}
+            </button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-[var(--text-muted)]">
+            Already have an account?{" "}
+            <Link className="font-semibold text-[var(--text-primary)] underline" to="/login">
+              Login
+            </Link>
+          </p>
+        </section>
+
+        <aside className="surface-card fade-up order-1 flex flex-col justify-between rounded-[2rem] p-8 sm:p-10 lg:order-2">
+          <div>
+            <span className="pill-tag mb-4">NEW SEASON</span>
+            <h2 className="display-font text-4xl leading-tight sm:text-5xl">
+              Upgrade Your Wardrobe Story.
+            </h2>
+            <p className="mt-4 max-w-md text-sm text-[var(--text-muted)] sm:text-base">
+              Be first to access trend reports, curated drops, and personalized
+              picks made for your style.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-3">
+            <div className="rounded-2xl border border-[var(--border-soft)] bg-white/80 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
+                Why Join
+              </p>
+              <p className="mt-2 text-sm font-semibold">Wishlist and alerts</p>
+            </div>
+            <div className="rounded-2xl border border-[var(--border-soft)] bg-white/80 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
+                Why Join
+              </p>
+              <p className="mt-2 text-sm font-semibold">
+                Faster checkout experience
+              </p>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   );
