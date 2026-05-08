@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authenticateSeller } from "../middleware/auth.middleware.js";
 import {
   createProduct,
+  deleteProduct,
   getAllProducts,
   getProductById,
   getSellerProducts,
@@ -24,5 +25,6 @@ productRouter.post(
 productRouter.get("/seller/products", authenticateSeller, getSellerProducts);
 productRouter.get("/all", getAllProducts);
 productRouter.get("/details/:id", getProductById);
+productRouter.delete("/delete/:id", authenticateSeller, deleteProduct);
 
 export default productRouter;

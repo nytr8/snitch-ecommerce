@@ -25,125 +25,143 @@ const Login = () => {
     event.preventDefault();
     setSuccessMessage("");
 
-    const result = await handleLogin(formData);
+    const result = await handleLogin({
+      email: formData.email,
+      password: formData.password,
+    });
 
     if (result.success) {
       setSuccessMessage("Login successful. Welcome back!");
+      navigate("/");
     }
-    navigate("/");
   };
 
   return (
-    <div className="page-shell min-h-screen px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto grid w-full max-w-6xl gap-5 lg:grid-cols-[1.1fr_1fr]">
-        <aside className="surface-card fade-up flex flex-col justify-between rounded-[2rem] p-8 sm:p-10">
-          <div>
-            <span className="pill-tag mb-4">SNITCH CLUB</span>
-            <h1 className="display-font text-4xl leading-tight sm:text-5xl">
-              Style Starts With Confidence.
-            </h1>
-            <p className="mt-4 max-w-md text-sm text-[var(--text-muted)] sm:text-base">
-              Sign in to track orders, unlock tailored recommendations, and save
-              your best looks.
-            </p>
-          </div>
-
-          <div className="mt-10 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-[var(--border-soft)] bg-white/80 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
-                Member Benefit
+    <div className="min-h-screen bg-[#FCFBFA] flex items-center justify-center p-0 md:p-12">
+      <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 bg-white border border-gray-200 overflow-hidden">
+        {/* Left Side: Editorial Content */}
+        <aside className="relative hidden lg:block bg-gray-100 overflow-hidden group border-r border-gray-200">
+          <img
+            src="https://images.unsplash.com/photo-1539109132304-3915502adcad?auto=format&fit=crop&w=800&q=80"
+            alt="Editorial fashion"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4000ms] group-hover:scale-110"
+          />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"></div>
+          <div className="relative h-full flex flex-col justify-between p-20 text-white">
+            <div>
+              <Link
+                to="/"
+                className="text-4xl font-bold display-font tracking-tighter uppercase"
+              >
+                Snitch
+              </Link>
+              <p className="text-[10px] font-bold tracking-[0.5em] uppercase mt-4 text-white/50 italic underline underline-offset-8">
+                Authorized Access Only
               </p>
-              <p className="mt-2 text-sm font-semibold">Priority support</p>
             </div>
-            <div className="rounded-2xl border border-[var(--border-soft)] bg-white/80 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
-                Member Benefit
+            <div className="max-w-xs">
+              <h1 className="text-5xl font-bold display-font tracking-tight leading-[1.1] mb-8">
+                The New <br />
+                Era of Style.
+              </h1>
+              <p className="text-xs text-white/60 leading-relaxed font-bold tracking-widest uppercase">
+                Step into a world of curated aesthetics and precision tailoring.
               </p>
-              <p className="mt-2 text-sm font-semibold">Early access drops</p>
             </div>
           </div>
         </aside>
 
-        <section className="surface-card fade-up rounded-[2rem] p-6 sm:p-8 lg:p-10">
-          <div className="mb-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
+        {/* Right Side: Login Form */}
+        <section className="p-12 sm:p-24 flex flex-col justify-center bg-white">
+          <div className="mb-16">
+            <p className="text-[10px] font-bold tracking-[0.6em] uppercase text-gray-300 mb-4">
               Welcome Back
             </p>
-            <h2 className="display-font mt-2 text-3xl sm:text-4xl">Sign In</h2>
-            <p className="mt-2 text-sm text-[var(--text-muted)]">
-              Access your account to continue shopping.
-            </p>
+            <h2 className="text-6xl font-bold display-font tracking-tight mb-4">
+              Sign In
+            </h2>
+            <div className="w-12 h-[1px] bg-black"></div>
           </div>
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div>
+          <form className="space-y-10" onSubmit={handleSubmit}>
+            <div className="space-y-3">
               <label
-                className="mb-1.5 block text-sm font-semibold"
+                className="text-[10px] font-bold tracking-[0.4em] uppercase text-gray-400"
                 htmlFor="email"
               >
-                Email
+                Identity / Email
               </label>
               <input
-                className="field-input"
+                className="w-full bg-transparent border-b border-gray-200 px-0 py-4 text-sm focus:border-black transition-all outline-none placeholder:text-gray-200"
                 id="email"
                 name="email"
                 onChange={handleChange}
-                placeholder="you@example.com"
+                placeholder="name@email.com"
                 required
                 type="email"
                 value={formData.email}
               />
             </div>
 
-            <div>
-              <label
-                className="mb-1.5 block text-sm font-semibold"
-                htmlFor="password"
-              >
-                Password
-              </label>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <label
+                  className="text-[10px] font-bold tracking-[0.4em] uppercase text-gray-400"
+                  htmlFor="password"
+                >
+                  Security / Password
+                </label>
+                <a
+                  href="#"
+                  className="text-[9px] font-bold text-gray-300 hover:text-black uppercase tracking-widest border-b border-transparent hover:border-black transition-all"
+                >
+                  Recovery
+                </a>
+              </div>
               <input
-                className="field-input"
+                className="w-full bg-transparent border-b border-gray-200 px-0 py-4 text-sm focus:border-black transition-all outline-none placeholder:text-gray-200"
                 id="password"
                 name="password"
                 onChange={handleChange}
-                placeholder="Enter your password"
+                placeholder="••••••••"
                 required
                 type="password"
                 value={formData.password}
               />
             </div>
 
-            {error ? (
-              <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-                {error}
-              </p>
-            ) : null}
+            {error && (
+              <div className="p-6 bg-rose-50 text-rose-600 text-[10px] font-bold tracking-widest uppercase border-l-2 border-rose-600">
+                Authentication Error: {error}
+              </div>
+            )}
 
-            {successMessage ? (
-              <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-                {successMessage}
-              </p>
-            ) : null}
+            {successMessage && (
+              <div className="p-6 bg-emerald-50 text-emerald-600 text-[10px] font-bold tracking-widest uppercase border-l-2 border-emerald-600">
+                Status: {successMessage}
+              </div>
+            )}
 
             <button
-              className="btn-primary w-full"
+              className="w-full bg-[#1A1A1A] text-white py-6 text-[11px] font-bold tracking-[0.4em] uppercase hover:bg-black transition-all shadow-none hover:shadow-2xl active:scale-[0.99] disabled:opacity-50"
               disabled={loading}
               type="submit"
             >
-              {loading ? "Signing in..." : "Login"}
+              {loading ? "Verifying..." : "Enter Portal"}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-[var(--text-muted)]">
-            New here?{" "}
-            <Link
-              className="font-semibold text-[var(--text-primary)] underline"
-              to="/register"
-            >
-              Create an account
-            </Link>
-          </p>
+          <div className="mt-20">
+            <p className="text-[10px] text-gray-400 font-bold tracking-widest uppercase">
+              New to the house?{" "}
+              <Link
+                to="/register"
+                className="text-black border-b border-black pb-1 ml-2 hover:text-gray-500 hover:border-gray-500 transition-colors"
+              >
+                Create Account
+              </Link>
+            </p>
+          </div>
         </section>
       </div>
     </div>

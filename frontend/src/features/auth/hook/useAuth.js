@@ -1,6 +1,11 @@
-import { login, register } from "../services/auth.api";
+import { getMe, login, register } from "../services/auth.api";
 import { useDispatch } from "react-redux";
-import { setError, setLoading, setUser } from "../state/auth.slice";
+import {
+  setAuthChecked,
+  setError,
+  setLoading,
+  setUser,
+} from "../state/auth.slice";
 
 const getErrorMessage = (error, fallbackMessage) => {
   if (typeof error === "string") {
@@ -35,12 +40,12 @@ export const useAuth = () => {
       return { success: false, message };
     } finally {
       dispatch(setLoading(false));
+      dispatch(setAuthChecked(true));
     }
   };
   const handleLogin = async ({ email, password }) => {
     dispatch(setLoading(true));
     dispatch(setError(null));
-
     try {
       const result = await login({ email, password });
       dispatch(setUser(result.user));
@@ -51,6 +56,7 @@ export const useAuth = () => {
       return { success: false, message };
     } finally {
       dispatch(setLoading(false));
+      dispatch(setAuthChecked(true));
     }
   };
   const handleGetMe = async () => {
@@ -66,6 +72,7 @@ export const useAuth = () => {
       return { success: false, message };
     } finally {
       dispatch(setLoading(false));
+      dispatch(setAuthChecked(true));
     }
   };
   return { handleRegister, handleLogin, handleGetMe };

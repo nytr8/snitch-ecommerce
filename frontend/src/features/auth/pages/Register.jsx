@@ -39,149 +39,125 @@ const Register = () => {
   };
 
   return (
-    <div className="page-shell min-h-screen px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto grid w-full max-w-6xl gap-5 lg:grid-cols-[1fr_1.1fr]">
-        <section className="surface-card fade-up order-2 rounded-[2rem] p-6 sm:p-8 lg:order-1 lg:p-10">
-          <div className="mb-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
-              Join Snitch
-            </p>
-            <h1 className="display-font mt-2 text-3xl sm:text-4xl">
-              Create Account
-            </h1>
-            <p className="mt-2 text-sm text-[var(--text-muted)]">
-              Build your account to save favourites and checkout faster.
-            </p>
+    <div className="min-h-screen bg-[#FCFBFA] flex items-center justify-center p-0 md:p-12">
+      <div className="w-full max-w-[1300px] grid grid-cols-1 lg:grid-cols-2 bg-white border border-gray-200 overflow-hidden">
+        
+        {/* Left Side: Register Form */}
+        <section className="p-12 sm:p-24 flex flex-col justify-center order-2 lg:order-1 bg-white">
+          <div className="mb-16">
+            <p className="text-[10px] font-bold tracking-[0.6em] uppercase text-gray-300 mb-4">New Membership</p>
+            <h2 className="text-6xl font-bold display-font tracking-tight mb-4">Join House</h2>
+            <div className="w-12 h-[1px] bg-black"></div>
           </div>
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div>
-              <label
-                className="mb-1.5 block text-sm font-semibold"
-                htmlFor="fullname"
-              >
-                Full Name
-              </label>
-              <input
-                className="field-input"
-                id="fullname"
-                name="fullname"
-                onChange={handleChange}
-                placeholder="Your full name"
-                required
-                type="text"
-                value={formData.fullname}
-              />
-            </div>
-
-            <div>
-              <label
-                className="mb-1.5 block text-sm font-semibold"
-                htmlFor="contact"
-              >
-                Contact Number
-              </label>
-              <input
-                className="field-input"
-                id="contact"
-                name="contact"
-                onChange={handleChange}
-                placeholder="10-digit phone number"
-                required
-                type="tel"
-                value={formData.contact}
-              />
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label
-                  className="mb-1.5 block text-sm font-semibold"
-                  htmlFor="email"
-                >
-                  Email
-                </label>
+          <form className="space-y-10" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold tracking-[0.4em] uppercase text-gray-400" htmlFor="fullname">Legal Name</label>
                 <input
-                  className="field-input"
-                  id="email"
-                  name="email"
+                  className="w-full bg-transparent border-b border-gray-200 px-0 py-4 text-sm focus:border-black transition-all outline-none placeholder:text-gray-200"
+                  id="fullname"
+                  name="fullname"
                   onChange={handleChange}
-                  placeholder="you@example.com"
+                  placeholder="John Doe"
                   required
-                  type="email"
-                  value={formData.email}
+                  type="text"
+                  value={formData.fullname}
                 />
               </div>
-              <div>
-                <label
-                  className="mb-1.5 block text-sm font-semibold"
-                  htmlFor="password"
-                >
-                  Password
-                </label>
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold tracking-[0.4em] uppercase text-gray-400" htmlFor="contact">Contact / Mobile</label>
                 <input
-                  className="field-input"
-                  id="password"
-                  name="password"
+                  className="w-full bg-transparent border-b border-gray-200 px-0 py-4 text-sm focus:border-black transition-all outline-none placeholder:text-gray-200"
+                  id="contact"
+                  name="contact"
                   onChange={handleChange}
-                  placeholder="At least 6 characters"
+                  placeholder="+91 00000 00000"
                   required
-                  type="password"
-                  value={formData.password}
+                  type="tel"
+                  value={formData.contact}
                 />
               </div>
             </div>
 
-            {error ? (
-              <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-                {error}
-              </p>
-            ) : null}
+            <div className="space-y-3">
+              <label className="text-[10px] font-bold tracking-[0.4em] uppercase text-gray-400" htmlFor="email">Identity / Email</label>
+              <input
+                className="w-full bg-transparent border-b border-gray-200 px-0 py-4 text-sm focus:border-black transition-all outline-none placeholder:text-gray-200"
+                id="email"
+                name="email"
+                onChange={handleChange}
+                placeholder="name@email.com"
+                required
+                type="email"
+                value={formData.email}
+              />
+            </div>
 
-            {successMessage ? (
-              <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-                {successMessage}
-              </p>
-            ) : null}
+            <div className="space-y-3">
+              <label className="text-[10px] font-bold tracking-[0.4em] uppercase text-gray-400" htmlFor="password">Security / Password</label>
+              <input
+                className="w-full bg-transparent border-b border-gray-200 px-0 py-4 text-sm focus:border-black transition-all outline-none placeholder:text-gray-200"
+                id="password"
+                name="password"
+                onChange={handleChange}
+                placeholder="Min. 6 characters"
+                required
+                type="password"
+                value={formData.password}
+              />
+            </div>
 
-            <button className="btn-primary w-full" disabled={loading} type="submit">
-              {loading ? "Creating account..." : "Register"}
+            {error && (
+              <div className="p-6 bg-rose-50 text-rose-600 text-[10px] font-bold tracking-widest uppercase border-l-2 border-rose-600">
+                System Error: {error}
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="p-6 bg-emerald-50 text-emerald-600 text-[10px] font-bold tracking-widest uppercase border-l-2 border-emerald-600">
+                Success: {successMessage}
+              </div>
+            )}
+
+            <button
+              className="w-full bg-[#1A1A1A] text-white py-6 text-[11px] font-bold tracking-[0.4em] uppercase hover:bg-black transition-all active:scale-[0.99] disabled:opacity-50 mt-4"
+              disabled={loading}
+              type="submit"
+            >
+              {loading ? "Processing..." : "Create Identity"}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-[var(--text-muted)]">
-            Already have an account?{" "}
-            <Link className="font-semibold text-[var(--text-primary)] underline" to="/login">
-              Login
-            </Link>
-          </p>
-        </section>
-
-        <aside className="surface-card fade-up order-1 flex flex-col justify-between rounded-[2rem] p-8 sm:p-10 lg:order-2">
-          <div>
-            <span className="pill-tag mb-4">NEW SEASON</span>
-            <h2 className="display-font text-4xl leading-tight sm:text-5xl">
-              Upgrade Your Wardrobe Story.
-            </h2>
-            <p className="mt-4 max-w-md text-sm text-[var(--text-muted)] sm:text-base">
-              Be first to access trend reports, curated drops, and personalized
-              picks made for your style.
+          <div className="mt-20">
+            <p className="text-[10px] text-gray-400 font-bold tracking-widest uppercase">
+              Already a member?{" "}
+              <Link to="/login" className="text-black border-b border-black pb-1 ml-2 hover:text-gray-500 hover:border-gray-500 transition-colors">
+                Sign In
+              </Link>
             </p>
           </div>
+        </section>
 
-          <div className="mt-10 grid gap-3">
-            <div className="rounded-2xl border border-[var(--border-soft)] bg-white/80 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
-                Why Join
-              </p>
-              <p className="mt-2 text-sm font-semibold">Wishlist and alerts</p>
+        {/* Right Side: Editorial Image */}
+        <aside className="relative hidden lg:block bg-gray-100 overflow-hidden group order-1 lg:order-2 border-l border-gray-200">
+          <img 
+            src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80" 
+            alt="Editorial fashion" 
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4000ms] group-hover:scale-110"
+          />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"></div>
+          <div className="relative h-full flex flex-col justify-between p-20 text-white">
+            <div>
+              <Link to="/" className="text-4xl font-bold display-font tracking-tighter uppercase">Snitch</Link>
+              <p className="text-[10px] font-bold tracking-[0.5em] uppercase mt-4 text-white/50 italic underline underline-offset-8">Limited Memberships</p>
             </div>
-            <div className="rounded-2xl border border-[var(--border-soft)] bg-white/80 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
-                Why Join
-              </p>
-              <p className="mt-2 text-sm font-semibold">
-                Faster checkout experience
+            <div className="max-w-xs">
+              <h1 className="text-5xl font-bold display-font tracking-tight leading-[1.1] mb-8">
+                Curated <br />Excellence.
+              </h1>
+              <p className="text-xs text-white/60 leading-relaxed font-bold tracking-widest uppercase">
+                Access trend reports, private drops, and architectural silhouettes.
               </p>
             </div>
           </div>
@@ -192,3 +168,5 @@ const Register = () => {
 };
 
 export default Register;
+
+

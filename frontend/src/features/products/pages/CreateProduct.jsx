@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import useProduct from "../hooks/useproduct";
+import useProduct from "../hooks/useProduct";
+import SellerLayout from "../components/SellerLayout";
 
 const CreateProduct = () => {
   const { handleCreateProduct } = useProduct();
@@ -7,7 +8,7 @@ const CreateProduct = () => {
     title: "",
     description: "",
     amount: "",
-    currency: "USD",
+    currency: "INR",
   });
   const [images, setImages] = useState([]);
   const [imageUrls, setImageUrls] = useState([]);
@@ -65,21 +66,24 @@ const CreateProduct = () => {
       const productFormData = new FormData();
       productFormData.append("title", formData.title);
       productFormData.append("description", formData.description);
-      productFormData.append("amount", parseFloat(formData.amount));
-      productFormData.append("currency", formData.currency);
+      productFormData.append("priceAmount", parseFloat(formData.amount));
+      productFormData.append("priceCurrency", formData.currency);
 
       images.forEach((image) => {
         productFormData.append("images", image);
       });
 
-      await handleCreateProduct(productFormData);
+      const result = await handleCreateProduct(productFormData);
+      if (!result.success) {
+        throw new Error(result.message);
+      }
       alert("Product created successfully!");
       // Reset form
       setFormData({
         title: "",
         description: "",
         amount: "",
-        currency: "USD",
+        currency: "INR",
       });
       setImages([]);
       setImageUrls([]);
@@ -92,18 +96,11 @@ const CreateProduct = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral flex items-center justify-center p-6">
+    <SellerLayout
+      title="Create New Product"
+      subtitle="Add a new product to your store"
+    >
       <div className="w-full max-w-6xl bg-white border border-secondary/30 p-8">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-4xl font-serif font-bold text-primary mb-1">
-            Create New Product
-          </h1>
-          <p className="text-label font-sans text-primary/60 uppercase">
-            Add a new product to your store
-          </p>
-        </div>
-
         <form
           onSubmit={handleSubmit}
           className="grid grid-cols-1 lg:grid-cols-3 gap-6"
@@ -248,7 +245,7 @@ const CreateProduct = () => {
                   <option value="USD">USD</option>
                   <option value="EUR">EUR</option>
                   <option value="GBP">GBP</option>
-                  <option value="CAD">CAD</option>
+                  <option value="INR">INR</option>
                 </select>
               </div>
             </div>
@@ -273,7 +270,7 @@ const CreateProduct = () => {
                     title: "",
                     description: "",
                     amount: "",
-                    currency: "USD",
+                    currency: "INR",
                   });
                   setImages([]);
                   setImageUrls([]);
@@ -286,7 +283,7 @@ const CreateProduct = () => {
           </div>
         </form>
       </div>
-    </div>
+    </SellerLayout>
   );
 };
 

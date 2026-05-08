@@ -1,9 +1,20 @@
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useAuth } from "../features/auth/hook/useAuth";
 
 const App = () => {
-  useEffect
+  const { handleGetMe } = useAuth();
+  const hasHydratedAuth = useRef(false);
+
+  useEffect(() => {
+    if (hasHydratedAuth.current) {
+      return;
+    }
+    hasHydratedAuth.current = true;
+    handleGetMe();
+  }, [handleGetMe]);
+
   return <RouterProvider router={router} />;
 };
 
