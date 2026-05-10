@@ -7,6 +7,7 @@ const CreateProduct = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
+    category: "",
     amount: "",
     currency: "INR",
   });
@@ -51,6 +52,11 @@ const CreateProduct = () => {
       return;
     }
 
+    if (!formData.category.trim()) {
+      alert("Please enter a product category");
+      return;
+    }
+
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
       alert("Please enter a valid amount");
       return;
@@ -66,6 +72,7 @@ const CreateProduct = () => {
       const productFormData = new FormData();
       productFormData.append("title", formData.title);
       productFormData.append("description", formData.description);
+      productFormData.append("category", formData.category);
       productFormData.append("priceAmount", parseFloat(formData.amount));
       productFormData.append("priceCurrency", formData.currency);
 
@@ -82,6 +89,7 @@ const CreateProduct = () => {
       setFormData({
         title: "",
         description: "",
+        category: "",
         amount: "",
         currency: "INR",
       });
@@ -209,6 +217,21 @@ const CreateProduct = () => {
               />
             </div>
 
+            {/* Category */}
+            <div>
+              <label className="block text-label font-sans font-semibold text-primary/60 uppercase mb-2">
+                Category
+              </label>
+              <input
+                type="text"
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                placeholder="e.g. Men Shirts"
+                className="w-full px-4 py-2 border border-secondary/30 font-sans text-sm bg-neutral/50 focus:outline-none focus:border-tertiary transition-colors placeholder:text-primary/30"
+              />
+            </div>
+
             {/* Price and Currency */}
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -269,6 +292,7 @@ const CreateProduct = () => {
                   setFormData({
                     title: "",
                     description: "",
+                    category: "",
                     amount: "",
                     currency: "INR",
                   });

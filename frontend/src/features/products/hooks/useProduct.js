@@ -6,6 +6,7 @@ import {
   getSellerProducts,
   deleteProduct,
   getProductById,
+  addProductVariant,
 } from "../services/product.api";
 import {
   addSellerProduct,
@@ -118,6 +119,24 @@ const useProduct = () => {
     },
     [dispatch],
   );
+  const handleAddProductVariant = useCallback(
+    async (productId, variantData) => {
+      dispatch(setLoading(true));
+      dispatch(setError(null));
+      try {
+        const res = await addProductVariant(productId, variantData);
+        dispatch(setProductDetails(res.product));
+        return { success: true, data: res };
+      } catch (error) {
+        const message = getErrorMessage(error, "Failed to add product variant");
+        dispatch(setError(message));
+        return { success: false, message };
+      } finally {
+        dispatch(setLoading(false));
+      }
+    },
+    [dispatch],
+  );
 
   return {
     handleCreateProduct,
@@ -125,6 +144,7 @@ const useProduct = () => {
     handleGetAllProducts,
     handleDeleteProduct,
     handleProductDetails,
+    handleAddProductVariant,
   };
 };
 

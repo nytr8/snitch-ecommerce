@@ -58,6 +58,24 @@ export async function getProductById(productId) {
     );
   }
 }
+export async function addProductVariant(productId, variantData) {
+  try {
+    const response = await productApiInstance.post(
+      `/variant/add/${productId}`,
+      variantData,
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error adding variant to product with ID ${productId}:`,
+      error.response?.data || error.message,
+    );
+    throw (
+      error.response?.data ||
+      new Error(`Failed to add variant to product with ID ${productId}`)
+    );
+  }
+}
 
 export async function deleteProduct(productId) {
   try {

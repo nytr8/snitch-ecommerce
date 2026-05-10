@@ -34,30 +34,41 @@ const productSchema = new mongoose.Schema(
       ref: "user",
       required: true,
     },
+    category: {
+      type: String,
+      required: true,
+    },
     variants: [
       {
-        attribute: {
-          type: String,
-          required: true,
-          // Example: "M", "L", "XL"
+        attributes: {
+          name: {
+            type: String,
+            // Example: "Size"
+          },
+
+          values: [
+            {
+              type: String,
+              // Example: "M", "L", "XL"
+            },
+          ],
         },
 
         color: {
           type: String,
-          required: true,
           // Example: "Black", "White"
         },
 
         stock: {
           type: Number,
           default: 0,
+          required: true,
         },
 
         images: [
           {
             url: {
               type: String,
-              required: true,
             },
           },
         ],
@@ -65,7 +76,6 @@ const productSchema = new mongoose.Schema(
         price: {
           amount: {
             type: Number,
-            required: true,
           },
 
           currency: {
@@ -73,11 +83,6 @@ const productSchema = new mongoose.Schema(
             enum: ["USD", "EUR", "GBP", "JPY", "CNY", "INR"],
             default: "INR",
           },
-        },
-
-        sku: {
-          type: String,
-          unique: true,
         },
       },
     ],

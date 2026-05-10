@@ -6,6 +6,7 @@ import Dashboard from "../features/products/pages/Dashboard";
 import SellerProducts from "../features/products/pages/SellerProducts";
 import ProductDetails from "../features/products/pages/ProductDetails";
 import Home from "../features/home/pages/Home";
+import UserProductDetails from "../features/home/pages/UserProductDetails";
 import Protected from "../features/auth/pages/Protected";
 
 export const router = createBrowserRouter([
@@ -26,6 +27,14 @@ export const router = createBrowserRouter([
     element: <Login />,
   },
   {
+    path: "/product/:id",
+    element: (
+      <Protected>
+        <UserProductDetails />
+      </Protected>
+    ),
+  },
+  {
     path: "/seller",
     children: [
       {
@@ -35,7 +44,7 @@ export const router = createBrowserRouter([
       {
         path: "dashboard",
         element: (
-          <Protected>
+          <Protected sellerOnly>
             <Dashboard />
           </Protected>
         ),
@@ -43,7 +52,7 @@ export const router = createBrowserRouter([
       {
         path: "create-product",
         element: (
-          <Protected>
+          <Protected sellerOnly>
             <CreateProduct />
           </Protected>
         ),
@@ -51,7 +60,7 @@ export const router = createBrowserRouter([
       {
         path: "products",
         element: (
-          <Protected>
+          <Protected sellerOnly>
             <SellerProducts />
           </Protected>
         ),
@@ -59,7 +68,7 @@ export const router = createBrowserRouter([
       {
         path: "product/:id",
         element: (
-          <Protected>
+          <Protected sellerOnly>
             <ProductDetails />
           </Protected>
         ),

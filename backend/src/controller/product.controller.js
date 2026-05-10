@@ -3,7 +3,7 @@ import { uploadImage } from "../services/storage.service.js";
 
 export const createProduct = async (req, res) => {
   const seller = req.user;
-  const { title, description, priceAmount, priceCurrency } = req.body;
+  const { title, description, priceAmount, priceCurrency, category } = req.body;
   try {
     const images = await Promise.all(
       req.files.map(async (file) => {
@@ -23,6 +23,7 @@ export const createProduct = async (req, res) => {
       },
       images,
       seller: seller._id,
+      category,
     });
     res.status(201).json({ message: "Product created successfully", product });
   } catch (error) {
@@ -99,7 +100,7 @@ export const deleteProduct = async (req, res) => {
 export const addProductVariant = async (req, res) => {
   const { productId } = req.params;
   const seller = req.user._id;
-  const { attribute, color, stock, priceAmount, priceCurrency } = req.body;
+  const { color, stock, priceAmount, priceCurrency, name, values } = req.body;
   try {
     const product = await productModel.findOne({
       _id: productId,
@@ -120,7 +121,10 @@ export const addProductVariant = async (req, res) => {
       }),
     );
     const variant = {
-      attribute,
+      attributes: {
+        name,
+        values,
+      },
       color,
       stock,
       price: {

@@ -8,6 +8,7 @@ const productSlice = createSlice({
     error: null,
     allProducts: [],
     productDetails: null,
+    productVariants: [],
   },
 
   reducers: {
@@ -38,6 +39,9 @@ const productSlice = createSlice({
     setProductDetails: (state, action) => {
       state.productDetails = action.payload;
     },
+    setProductVariants: (state, action) => {
+      state.productVariants = action.payload;
+    },
   },
 });
 
@@ -49,6 +53,7 @@ export const {
   removeSellerProduct,
   setAllProducts,
   setProductDetails,
+  setProductVariants,
 } = productSlice.actions;
 
 export default productSlice.reducer;

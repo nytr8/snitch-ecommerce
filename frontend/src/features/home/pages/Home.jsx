@@ -1,30 +1,20 @@
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-
-const featuredProducts = [
-  {
-    title: "Wool Blend Overshirt",
-    tone: "Stone",
-    price: "INR 3,499",
-    image:
-      "https://images.unsplash.com/photo-1593032465175-481ac7f401a0?auto=format&fit=crop&w=700&q=80",
-  },
-  {
-    title: "Relaxed Linen Shirt",
-    tone: "Sand",
-    price: "INR 2,699",
-    image:
-      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=700&q=80",
-  },
-  {
-    title: "Tailored Utility Trousers",
-    tone: "Olive",
-    price: "INR 3,999",
-    image:
-      "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?auto=format&fit=crop&w=700&q=80",
-  },
-];
+import useProduct from "../../products/hooks/useProduct";
 
 const Home = () => {
+  const { handleGetAllProducts } = useProduct();
+  const allProducts = useSelector((state) => state.product.allProducts);
+  const loading = useSelector((state) => state.product.loading);
+  const error = useSelector((state) => state.product.error);
+  const user = useSelector((state) => state.auth.user);
+  const isSeller = user?.role === "seller";
+
+  useEffect(() => {
+    handleGetAllProducts();
+  }, [handleGetAllProducts]);
+
   return (
     <div className="min-h-screen bg-[#FCFBFA] text-[#1A1A1A]">
       {/* Premium Sticky Navigation */}
@@ -40,7 +30,9 @@ const Home = () => {
         <div className="flex items-center gap-8">
           <Link to="/login" className="text-[11px] font-bold tracking-[0.3em] uppercase hover:opacity-50 transition-opacity">Login</Link>
           <Link to="/register" className="bg-[#1A1A1A] text-white px-8 py-3 text-[11px] font-bold tracking-[0.3em] uppercase hover:bg-black transition-all">Join Us</Link>
-          <Link to="/seller/dashboard" className="hidden sm:block text-[11px] font-bold tracking-[0.3em] uppercase text-gray-400 hover:text-black transition-colors">Seller Portal</Link>
+          {isSeller ? (
+            <Link to="/seller/dashboard" className="hidden sm:block text-[11px] font-bold tracking-[0.3em] uppercase text-gray-400 hover:text-black transition-colors">Seller Portal</Link>
+          ) : null}
         </div>
       </nav>
 
@@ -62,9 +54,11 @@ const Home = () => {
               <Link to="/shop" className="bg-white text-black px-12 py-5 text-[11px] font-bold tracking-[0.3em] uppercase hover:bg-gray-100 transition-all">
                 Explore Collection
               </Link>
-              <Link to="/seller/dashboard" className="border border-white/30 backdrop-blur-sm text-white px-12 py-5 text-[11px] font-bold tracking-[0.3em] uppercase hover:bg-white/10 transition-all">
-                Seller Space
-              </Link>
+              {isSeller ? (
+                <Link to="/seller/dashboard" className="border border-white/30 backdrop-blur-sm text-white px-12 py-5 text-[11px] font-bold tracking-[0.3em] uppercase hover:bg-white/10 transition-all">
+                  Seller Space
+                </Link>
+              ) : null}
             </div>
           </div>
         </section>
@@ -89,34 +83,61 @@ const Home = () => {
           <div className="flex items-end justify-between mb-16 border-b border-gray-200 pb-12">
             <div>
               <p className="text-[11px] font-bold tracking-[0.5em] uppercase text-[#1A1A1A]/30 mb-4">Curated Selection</p>
-              <h2 className="display-font text-6xl tracking-tight">Bestselling Looks</h2>
+              <h2 className="display-font text-6xl tracking-tight">All Products</h2>
             </div>
             <Link to="/shop" className="text-[11px] font-bold tracking-[0.3em] uppercase hover:opacity-50 transition-opacity border-b-2 border-black pb-2">
               Explore All
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
-            {featuredProducts.map((product, i) => (
-              <Link to="/product/id" className="group" key={i}>
-                <div className="relative aspect-[3/4] overflow-hidden bg-gray-50 mb-8 border border-gray-100">
-                  <img
-                    alt={product.title}
-                    className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                    src={product.image}
-                  />
-                  <div className="absolute top-0 right-0 bg-[#1A1A1A] text-white px-4 py-2 text-[9px] font-bold tracking-[0.3em] uppercase">New Arrival</div>
-                </div>
-                <div>
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-xl font-bold tracking-tight uppercase">{product.title}</h3>
-                    <p className="text-xl font-bold display-font">{product.price.split(' ')[1]} <span className="text-xs font-normal text-gray-400">INR</span></p>
+          {loading ? (
+            <div className="border border-dashed border-gray-200 py-24 text-center text-xs font-bold tracking-[0.3em] text-gray-400 uppercase">
+              Loading products...
+            </div>
+          ) : error ? (
+            <div className="border border-red-200 bg-red-50 px-6 py-4 text-xs font-bold tracking-wider text-red-600 uppercase">
+              {error}
+            </div>
+          ) : allProducts.length === 0 ? (
+            <div className="border border-dashed border-gray-200 py-24 text-center text-xs font-bold tracking-[0.3em] text-gray-400 uppercase">
+              No products available yet.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
+              {allProducts.map((product) => (
+                <Link to={`/product/${product._id}`} className="group" key={product._id}>
+                  <div className="relative aspect-[3/4] overflow-hidden bg-gray-50 mb-8 border border-gray-100">
+                    {product.images && product.images.length > 0 ? (
+                      <img
+                        alt={product.title}
+                        className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                        src={product.images[0].url}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-[10px] tracking-widest text-gray-300 uppercase">
+                        Image Missing
+                      </div>
+                    )}
+                    <div className="absolute top-0 right-0 bg-[#1A1A1A] text-white px-4 py-2 text-[9px] font-bold tracking-[0.3em] uppercase">Live</div>
                   </div>
-                  <p className="text-[10px] font-bold tracking-[0.4em] uppercase text-gray-400">{product.tone} Edition</p>
-                </div>
-              </Link>
-            ))}
-          </div>
+                  <div>
+                    <div className="flex justify-between items-start mb-2 gap-4">
+                      <h3 className="text-xl font-bold tracking-tight uppercase">{product.title}</h3>
+                      <p className="text-xl font-bold display-font whitespace-nowrap">
+                        {product.price?.amount}{" "}
+                        <span className="text-xs font-normal text-gray-400">
+                          {product.price?.currency || "INR"}
+                        </span>
+                      </p>
+                    </div>
+                    <p className="text-[10px] font-bold tracking-[0.4em] uppercase text-gray-400">
+                      {(product.category || "General")} Category
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
       </main>
 
@@ -170,5 +191,3 @@ const Home = () => {
 };
 
 export default Home;
-
-
