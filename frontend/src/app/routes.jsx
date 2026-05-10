@@ -4,6 +4,7 @@ import Login from "../features/auth/pages/Login";
 import CreateProduct from "../features/products/pages/CreateProduct";
 import Dashboard from "../features/products/pages/Dashboard";
 import SellerProducts from "../features/products/pages/SellerProducts";
+import ProductDetails from "../features/products/pages/ProductDetails";
 import Home from "../features/home/pages/Home";
 import Protected from "../features/auth/pages/Protected";
 
@@ -52,6 +53,14 @@ export const router = createBrowserRouter([
         element: (
           <Protected>
             <SellerProducts />
+          </Protected>
+        ),
+      },
+      {
+        path: "product/:id",
+        element: (
+          <Protected>
+            <ProductDetails />
           </Protected>
         ),
       },

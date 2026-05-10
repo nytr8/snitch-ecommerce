@@ -5,6 +5,7 @@ import {
   getAllProducts,
   getSellerProducts,
   deleteProduct,
+  getProductById,
 } from "../services/product.api";
 import {
   addSellerProduct,
@@ -13,6 +14,7 @@ import {
   setSellerProduct,
   setAllProducts,
   removeSellerProduct,
+  setProductDetails,
 } from "../state/product.slice";
 
 const getErrorMessage = (error, fallbackMessage) => {
@@ -95,12 +97,34 @@ const useProduct = () => {
     },
     [dispatch],
   );
+  const handleProductDetails = useCallback(
+    async (productId) => {
+      dispatch(setLoading(true));
+      dispatch(setError(null));
+      try {
+        const res = await getProductById(productId);
+        dispatch(setProductDetails(res.product));
+        return { success: true, data: res };
+      } catch (error) {
+        const message = getErrorMessage(
+          error,
+          "Failed to fetch product details",
+        );
+        dispatch(setError(message));
+        return { success: false, message };
+      } finally {
+        dispatch(setLoading(false));
+      }
+    },
+    [dispatch],
+  );
 
   return {
     handleCreateProduct,
     handleGetSellerProduct,
     handleGetAllProducts,
     handleDeleteProduct,
+    handleProductDetails,
   };
 };
 

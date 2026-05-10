@@ -7,6 +7,7 @@ const productSlice = createSlice({
     loading: false,
     error: null,
     allProducts: [],
+    productDetails: null,
   },
 
   reducers: {
@@ -22,7 +23,7 @@ const productSlice = createSlice({
     },
     removeSellerProduct: (state, action) => {
       state.sellerProducts = state.sellerProducts.filter(
-        (product) => product._id !== action.payload
+        (product) => product._id !== action.payload,
       );
     },
     setLoading: (state, action) => {
@@ -34,6 +35,9 @@ const productSlice = createSlice({
     setAllProducts: (state, action) => {
       state.allProducts = action.payload;
     },
+    setProductDetails: (state, action) => {
+      state.productDetails = action.payload;
+    },
   },
 });
 
@@ -44,6 +48,7 @@ export const {
   addSellerProduct,
   removeSellerProduct,
   setAllProducts,
+  setProductDetails,
 } = productSlice.actions;
 
 export default productSlice.reducer;

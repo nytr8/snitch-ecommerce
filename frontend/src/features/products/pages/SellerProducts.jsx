@@ -47,7 +47,8 @@ const SellerProducts = () => {
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {sellerProducts.length > 0 ? (
             sellerProducts.map((product) => (
-              <div
+              <Link
+                to={`/seller/product/${product._id}`}
                 className="group overflow-hidden border border-transparent transition-all duration-500 hover:border-gray-200"
                 key={product._id}
               >
@@ -64,7 +65,10 @@ const SellerProducts = () => {
                     </div>
                   )}
                   <button
-                    onClick={() => handleDeleteProduct(product._id)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDeleteProduct(product._id);
+                    }}
                     className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center bg-red-500 text-white opacity-0 transition-opacity duration-300 hover:bg-red-600 group-hover:opacity-100"
                     title="Delete product"
                   >
@@ -85,7 +89,7 @@ const SellerProducts = () => {
                     Manage Item
                   </button>
                 </div>
-              </div>
+              </Link>
             ))
           ) : (
             <div className="col-span-full flex flex-col items-center justify-center border border-dashed border-gray-200 py-32">

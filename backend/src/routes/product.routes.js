@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authenticateSeller } from "../middleware/auth.middleware.js";
 import {
+  addProductVariant,
   createProduct,
   deleteProduct,
   getAllProducts,
@@ -24,7 +25,13 @@ productRouter.post(
 );
 productRouter.get("/seller/products", authenticateSeller, getSellerProducts);
 productRouter.get("/all", getAllProducts);
-productRouter.get("/details/:id", getProductById);
-productRouter.delete("/delete/:id", authenticateSeller, deleteProduct);
+productRouter.get("/details/:productId", getProductById);
+productRouter.delete("/delete/:productId", authenticateSeller, deleteProduct);
+productRouter.post(
+  "/variant/add/:productId",
+  authenticateSeller,
+  upload.array("images", 7),
+  addProductVariant,
+);
 
 export default productRouter;
