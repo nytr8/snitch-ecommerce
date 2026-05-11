@@ -37,35 +37,35 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FCFBFA] flex items-center justify-center p-0 md:p-12">
-      <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 bg-white border border-gray-200 overflow-hidden">
+    <div className="min-h-screen bg-background flex items-center justify-center p-0 md:p-12">
+      <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 surface-card overflow-hidden fade-up shadow-2xl shadow-black/5">
         {/* Left Side: Editorial Content */}
-        <aside className="relative hidden lg:block bg-gray-100 overflow-hidden group border-r border-gray-200">
+        <aside className="relative hidden lg:block bg-gray-100 overflow-hidden group">
           <img
-            src="https://images.unsplash.com/photo-1539109132304-3915502adcad?auto=format&fit=crop&w=800&q=80"
+            src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80"
             alt="Editorial fashion"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4000ms] group-hover:scale-110"
           />
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"></div>
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]"></div>
           <div className="relative h-full flex flex-col justify-between p-20 text-white">
             <div>
               <Link
                 to="/"
-                className="text-4xl font-bold display-font tracking-tighter uppercase"
+                className="display-font text-4xl font-bold tracking-tighter uppercase block"
               >
                 Snitch
               </Link>
-              <p className="text-[10px] font-bold tracking-[0.5em] uppercase mt-4 text-white/50 italic underline underline-offset-8">
-                Authorized Access Only
+              <p className="label-sm text-white/60 mt-4 italic lowercase">
+                Studio Access / Auth
               </p>
             </div>
             <div className="max-w-xs">
-              <h1 className="text-5xl font-bold display-font tracking-tight leading-[1.1] mb-8">
-                The New <br />
-                Era of Style.
+              <h1 className="display-font text-6xl font-bold tracking-tight leading-[1.1] mb-8">
+                Refined <br />
+                Aesthetics.
               </h1>
-              <p className="text-xs text-white/60 leading-relaxed font-bold tracking-widest uppercase">
-                Step into a world of curated aesthetics and precision tailoring.
+              <p className="label-sm text-white/50 lowercase leading-relaxed italic">
+                A study in architectural minimalism and timeless style.
               </p>
             </div>
           </div>
@@ -74,52 +74,44 @@ const Login = () => {
         {/* Right Side: Login Form */}
         <section className="p-12 sm:p-24 flex flex-col justify-center bg-white">
           <div className="mb-16">
-            <p className="text-[10px] font-bold tracking-[0.6em] uppercase text-gray-300 mb-4">
-              Welcome Back
-            </p>
-            <h2 className="text-6xl font-bold display-font tracking-tight mb-4">
+            <p className="label-sm mb-4">Welcome Back</p>
+            <h2 className="display-font text-6xl font-bold tracking-tight mb-6">
               Sign In
             </h2>
             <div className="w-12 h-[1px] bg-black"></div>
           </div>
 
-          <form className="space-y-10" onSubmit={handleSubmit}>
-            <div className="space-y-3">
-              <label
-                className="text-[10px] font-bold tracking-[0.4em] uppercase text-gray-400"
-                htmlFor="email"
-              >
+          <form className="space-y-12" onSubmit={handleSubmit}>
+            <div className="space-y-4">
+              <label className="label-sm mb-0" htmlFor="email">
                 Identity / Email
               </label>
               <input
-                className="w-full bg-transparent border-b border-gray-200 px-0 py-4 text-sm focus:border-black transition-all outline-none placeholder:text-gray-200"
+                className="field-input text-lg lowercase italic"
                 id="email"
                 name="email"
                 onChange={handleChange}
-                placeholder="name@email.com"
+                placeholder="name@studio.com"
                 required
                 type="email"
                 value={formData.email}
               />
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <label
-                  className="text-[10px] font-bold tracking-[0.4em] uppercase text-gray-400"
-                  htmlFor="password"
-                >
+                <label className="label-sm mb-0" htmlFor="password">
                   Security / Password
                 </label>
                 <a
                   href="#"
-                  className="text-[9px] font-bold text-gray-300 hover:text-black uppercase tracking-widest border-b border-transparent hover:border-black transition-all"
+                  className="label-sm mb-0 text-gray-300 hover:text-black lowercase italic border-b border-transparent hover:border-black transition-all"
                 >
-                  Recovery
+                  Recovery?
                 </a>
               </div>
               <input
-                className="w-full bg-transparent border-b border-gray-200 px-0 py-4 text-sm focus:border-black transition-all outline-none placeholder:text-gray-200"
+                className="field-input text-lg"
                 id="password"
                 name="password"
                 onChange={handleChange}
@@ -131,29 +123,29 @@ const Login = () => {
             </div>
 
             {error && (
-              <div className="p-6 bg-rose-50 text-rose-600 text-[10px] font-bold tracking-widest uppercase border-l-2 border-rose-600">
-                Authentication Error: {error}
+              <div className="p-6 bg-red-50 text-red-600 label-sm border-l-2 border-red-600 mb-0">
+                Auth Error: {error}
               </div>
             )}
 
             {successMessage && (
-              <div className="p-6 bg-emerald-50 text-emerald-600 text-[10px] font-bold tracking-widest uppercase border-l-2 border-emerald-600">
+              <div className="p-6 bg-green-50 text-green-600 label-sm border-l-2 border-green-600 mb-0">
                 Status: {successMessage}
               </div>
             )}
 
             <button
-              className="w-full bg-[#1A1A1A] text-white py-6 text-[11px] font-bold tracking-[0.4em] uppercase hover:bg-black transition-all shadow-none hover:shadow-2xl active:scale-[0.99] disabled:opacity-50"
+              className="btn-primary w-full py-6 text-[11px]"
               disabled={loading}
               type="submit"
             >
-              {loading ? "Verifying..." : "Enter Portal"}
+              {loading ? "Verifying..." : "Enter Workspace"}
             </button>
           </form>
 
           <div className="mt-20">
-            <p className="text-[10px] text-gray-400 font-bold tracking-widest uppercase">
-              New to the house?{" "}
+            <p className="label-sm text-gray-400 lowercase italic">
+              New to the studio?{" "}
               <Link
                 to="/register"
                 className="text-black border-b border-black pb-1 ml-2 hover:text-gray-500 hover:border-gray-500 transition-colors"

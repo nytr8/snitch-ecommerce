@@ -2,6 +2,22 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getProductById } from "../../products/services/product.api";
 
+const cleanText = (value) =>
+  typeof value === "string" ? value.trim() : String(value || "").trim();
+
+const normalizeForMatch = (value) => cleanText(value).toLowerCase();
+
+const getVariantAttributeValues = (variant) => {
+  const rawValues = variant?.attributes?.values;
+  const valuesArray = Array.isArray(rawValues)
+    ? rawValues
+    : rawValues === null || rawValues === undefined
+      ? []
+      : [rawValues];
+
+  return valuesArray.map((value) => cleanText(value)).filter(Boolean);
+};
+
 const ProductImageGallery = ({ images, title }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -10,15 +26,15 @@ const ProductImageGallery = ({ images, title }) => {
 
   if (images.length === 0) {
     return (
-      <div className="flex aspect-[3/4] items-center justify-center border border-dashed border-gray-300 bg-gray-50 text-[11px] font-bold tracking-[0.2em] text-gray-400 uppercase">
+      <div className="flex aspect-[3/4] items-center justify-center border border-gray-100 bg-gray-50 label-sm text-gray-300 rounded-default italic">
         Image Missing
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
-      <div className="relative aspect-[3/4] overflow-hidden border border-gray-200 bg-gray-50">
+    <div className="space-y-4">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-default border border-gray-100 bg-gray-50">
         <img
           src={images[safeIndex].url}
           alt={`${title} ${safeIndex + 1}`}
@@ -27,14 +43,14 @@ const ProductImageGallery = ({ images, title }) => {
       </div>
 
       {images.length > 1 ? (
-        <div className="grid grid-cols-6 gap-2">
+        <div className="grid grid-cols-6 gap-3">
           {images.map((image, index) => (
             <button
               key={`${image.url}-${index}`}
               type="button"
               onClick={() => setActiveIndex(index)}
-              className={`aspect-square overflow-hidden border ${
-                index === safeIndex ? "border-black" : "border-gray-200"
+              className={`aspect-square overflow-hidden rounded-default border transition-all ${
+                index === safeIndex ? "border-black scale-95" : "border-transparent opacity-60 hover:opacity-100"
               }`}
               aria-label={`View ${title} image ${index + 1}`}
             >
@@ -87,21 +103,39 @@ const UserProductDetails = () => {
   }, [product]);
 
   const availableColors = useMemo(() => {
-    const colors = variants.map((variant) => variant?.color).filter(Boolean);
-    return [...new Set(colors)];
+    const uniqueColors = [];
+    const seenColorKeys = new Set();
+
+    variants.forEach((variant) => {
+      const color = cleanText(variant?.color);
+      const colorKey = normalizeForMatch(color);
+      if (!colorKey || seenColorKeys.has(colorKey)) {
+        return;
+      }
+      seenColorKeys.add(colorKey);
+      uniqueColors.push(color);
+    });
+
+    return uniqueColors;
   }, [variants]);
 
   const normalizedSelectedColor = useMemo(() => {
     if (availableColors.length === 0) return "";
-    return availableColors.includes(selectedColor)
-      ? selectedColor
-      : availableColors[0];
+    const selectedColorKey = normalizeForMatch(selectedColor);
+    return (
+      availableColors.find(
+        (colorOption) => normalizeForMatch(colorOption) === selectedColorKey,
+      ) || availableColors[0]
+    );
   }, [availableColors, selectedColor]);
 
   const variantsForSelectedColor = useMemo(() => {
     if (variants.length === 0) return [];
     if (!normalizedSelectedColor) return variants;
-    return variants.filter((variant) => variant?.color === normalizedSelectedColor);
+    const selectedColorKey = normalizeForMatch(normalizedSelectedColor);
+    return variants.filter(
+      (variant) => normalizeForMatch(variant?.color) === selectedColorKey,
+    );
   }, [variants, normalizedSelectedColor]);
 
   const attributeName = useMemo(() => {
@@ -113,21 +147,32 @@ const UserProductDetails = () => {
   }, [variantsForSelectedColor, variants]);
 
   const availableAttributeValues = useMemo(() => {
-    const rawValues = variantsForSelectedColor.flatMap((variant) => {
-      if (!Array.isArray(variant?.attributes?.values)) {
-        return [];
-      }
-      return variant.attributes.values.filter(Boolean);
+    const uniqueValues = [];
+    const seenValueKeys = new Set();
+
+    variantsForSelectedColor.forEach((variant) => {
+      getVariantAttributeValues(variant).forEach((value) => {
+        const valueKey = normalizeForMatch(value);
+        if (!valueKey || seenValueKeys.has(valueKey)) {
+          return;
+        }
+        seenValueKeys.add(valueKey);
+        uniqueValues.push(value);
+      });
     });
 
-    return [...new Set(rawValues)];
+    return uniqueValues;
   }, [variantsForSelectedColor]);
 
   const normalizedSelectedAttribute = useMemo(() => {
     if (availableAttributeValues.length === 0) return "";
-    return availableAttributeValues.includes(selectedAttributeValue)
-      ? selectedAttributeValue
-      : availableAttributeValues[0];
+    const selectedAttributeKey = normalizeForMatch(selectedAttributeValue);
+    return (
+      availableAttributeValues.find(
+        (attributeOption) =>
+          normalizeForMatch(attributeOption) === selectedAttributeKey,
+      ) || availableAttributeValues[0]
+    );
   }, [availableAttributeValues, selectedAttributeValue]);
 
   const selectedVariant = useMemo(() => {
@@ -140,10 +185,12 @@ const UserProductDetails = () => {
     }
 
     const matchedVariant = variantsForSelectedColor.find((variant) => {
-      if (!Array.isArray(variant?.attributes?.values)) {
-        return false;
-      }
-      return variant.attributes.values.includes(normalizedSelectedAttribute);
+      const variantAttributeKeys = getVariantAttributeValues(variant).map(
+        (value) => normalizeForMatch(value),
+      );
+      return variantAttributeKeys.includes(
+        normalizeForMatch(normalizedSelectedAttribute),
+      );
     });
 
     return matchedVariant || variantsForSelectedColor[0];
@@ -169,25 +216,30 @@ const UserProductDetails = () => {
   const handleColorSelect = (color) => {
     setSelectedColor(color);
 
-    const colorVariants = variants.filter((variant) => variant?.color === color);
+    const selectedColorKey = normalizeForMatch(color);
+    const colorVariants = variants.filter(
+      (variant) => normalizeForMatch(variant?.color) === selectedColorKey,
+    );
     const colorValues = [
       ...new Set(
-        colorVariants.flatMap((variant) =>
-          Array.isArray(variant?.attributes?.values)
-            ? variant.attributes.values.filter(Boolean)
-            : [],
-        ),
+        colorVariants.flatMap((variant) => getVariantAttributeValues(variant)),
       ),
     ];
 
-    const nextAttribute = colorValues[0] || "";
+    const currentAttributeKey = normalizeForMatch(selectedAttributeValue);
+    const nextAttribute =
+      colorValues.find(
+        (value) => normalizeForMatch(value) === currentAttributeKey,
+      ) ||
+      colorValues[0] ||
+      "";
     setSelectedAttributeValue(nextAttribute);
 
     const nextVariant =
       colorVariants.find((variant) =>
-        Array.isArray(variant?.attributes?.values)
-          ? variant.attributes.values.includes(nextAttribute)
-          : false,
+        getVariantAttributeValues(variant)
+          .map((value) => normalizeForMatch(value))
+          .includes(normalizeForMatch(nextAttribute)),
       ) || colorVariants[0];
     const nextStock = Number(nextVariant?.stock) || 0;
     setQuantity(nextStock > 0 ? 1 : 0);
@@ -198,9 +250,9 @@ const UserProductDetails = () => {
 
     const nextVariant =
       variantsForSelectedColor.find((variant) =>
-        Array.isArray(variant?.attributes?.values)
-          ? variant.attributes.values.includes(value)
-          : false,
+        getVariantAttributeValues(variant)
+          .map((attributeValue) => normalizeForMatch(attributeValue))
+          .includes(normalizeForMatch(value)),
       ) || variantsForSelectedColor[0];
     const nextStock = Number(nextVariant?.stock) || 0;
     setQuantity(nextStock > 0 ? 1 : 0);
@@ -208,30 +260,26 @@ const UserProductDetails = () => {
 
   const increaseQuantity = () => {
     if (displayStock <= 0) return;
-    setQuantity((current) =>
-      Math.min(Math.max(current, 1) + 1, displayStock),
-    );
+    setQuantity((current) => Math.min(Math.max(current, 1) + 1, displayStock));
   };
 
   const decreaseQuantity = () => {
     if (displayStock <= 0) return;
-    setQuantity((current) =>
-      Math.max(Math.max(current, 1) - 1, 1),
-    );
+    setQuantity((current) => Math.max(Math.max(current, 1) - 1, 1));
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FCFBFA] px-6 py-24 text-center text-xs font-bold tracking-[0.3em] text-gray-400 uppercase">
-        Loading product details...
+      <div className="min-h-screen bg-background px-6 py-24 text-center label-sm text-secondary lowercase italic">
+        Retrieving Studio Piece...
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#FCFBFA] px-6 py-24">
-        <div className="mx-auto max-w-5xl border border-red-200 bg-red-50 px-6 py-4 text-xs font-bold tracking-wider text-red-600 uppercase">
+      <div className="min-h-screen bg-background px-edge py-24">
+        <div className="mx-auto max-w-5xl border border-red-50 bg-red-50/30 px-6 py-4 label-sm text-red-600 lowercase italic">
           {error}
         </div>
       </div>
@@ -240,91 +288,71 @@ const UserProductDetails = () => {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-[#FCFBFA] px-6 py-24 text-center text-xs font-bold tracking-[0.3em] text-gray-400 uppercase">
-        Product not found.
+      <div className="min-h-screen bg-background px-6 py-24 text-center label-sm text-secondary italic">
+        Piece not found in collection.
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#FCFBFA] text-[#1A1A1A]">
-      <nav className="sticky top-0 z-30 border-b border-gray-200 bg-[#FCFBFA]/90 px-6 py-5 backdrop-blur-xl sm:px-12">
-        <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between">
-          <Link
-            to="/"
-            className="display-font text-3xl font-bold tracking-tighter uppercase"
-          >
-            Snitch
-          </Link>
-          <Link
-            to="/"
-            className="text-[11px] font-bold tracking-[0.3em] text-gray-500 uppercase transition hover:text-black"
-          >
-            Back To Home
-          </Link>
-        </div>
+    <div className="min-h-screen bg-background text-on-background">
+      <nav className="nav-blur border-b border-gray-100 px-edge py-8 flex items-center justify-between">
+        <Link to="/" className="display-font text-4xl font-bold tracking-tighter uppercase">Snitch</Link>
+        <Link to="/" className="label-sm mb-0 text-secondary hover:text-black transition-colors italic">Back to Archive</Link>
       </nav>
 
-      <main className="mx-auto max-w-[1600px] px-6 py-10 sm:px-12 sm:py-14">
-        <div className="mb-8 text-[10px] font-bold tracking-[0.3em] text-gray-400 uppercase">
-          {product.category || "General"} / Product Details
+      <main className="max-w-[1600px] mx-auto px-edge py-16">
+        <div className="label-sm text-secondary mb-12 lowercase italic fade-up">
+          {product.category || "General"} / Archival Details
         </div>
 
-        <div className="grid grid-cols-1 gap-10 xl:grid-cols-[1.1fr_1fr]">
+        <div className="grid grid-cols-1 gap-24 xl:grid-cols-[1.1fr_1fr] fade-up">
           <ProductImageGallery
-            key={normalizedSelectedColor || "default-color"}
+            key={selectedVariant?._id || normalizedSelectedColor || "default-color"}
             images={displayedImages}
             title={product.title}
           />
 
-          <div className="space-y-8">
+          <div className="space-y-12">
             <div>
-              <h1 className="display-font text-4xl leading-tight font-bold tracking-tight uppercase sm:text-5xl">
+              <h1 className="display-font text-5xl leading-[0.95] font-bold tracking-tight uppercase sm:text-7xl mb-8">
                 {product.title}
               </h1>
-              <p className="mt-4 text-3xl font-bold">
-                {displayPrice}{" "}
-                <span className="text-sm font-normal tracking-[0.25em] text-gray-400 uppercase">
-                  {displayCurrency}
+              <div className="flex items-baseline gap-4">
+                <p className="display-font text-4xl font-bold">
+                  {displayPrice}
+                </p>
+                <span className="label-sm mb-0 text-secondary lowercase italic">
+                  {displayCurrency} / tax incl.
                 </span>
-              </p>
+              </div>
             </div>
 
-            <p className="text-sm leading-relaxed text-gray-600">
-              {product.description}
+            <p className="text-xl leading-relaxed text-secondary italic">
+              "{product.description}"
             </p>
 
-            <div className="space-y-4 border-y border-gray-200 py-6">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] font-bold tracking-[0.3em] text-gray-400 uppercase">
-                  Availability:
-                </span>
-                <span
-                  className={`px-2 py-1 text-[10px] font-bold tracking-[0.2em] uppercase ${
-                    displayStock > 0
-                      ? "bg-green-50 text-green-700"
-                      : "bg-red-50 text-red-600"
-                  }`}
-                >
-                  {displayStock > 0 ? `In Stock (${displayStock})` : "Out of Stock"}
+            <div className="space-y-10 border-y border-gray-50 py-12">
+              <div className="flex items-center gap-4">
+                <span className="label-sm mb-0">Availability:</span>
+                <span className={`label-sm mb-0 lowercase italic ${displayStock > 0 ? "text-green-600" : "text-red-500"}`}>
+                  {displayStock > 0 ? `In Stock / ${displayStock} available` : "Sold Out"}
                 </span>
               </div>
 
-              {availableAttributeValues.length > 0 ? (
-                <div className="space-y-3">
-                  <p className="text-[10px] font-bold tracking-[0.3em] text-gray-400 uppercase">
-                    {attributeName}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
+              {availableAttributeValues.length > 0 && (
+                <div className="space-y-6">
+                  <p className="label-sm mb-0">{attributeName}</p>
+                  <div className="flex flex-wrap gap-3">
                     {availableAttributeValues.map((value) => (
                       <button
                         key={value}
                         type="button"
                         onClick={() => handleAttributeSelect(value)}
-                        className={`min-w-12 border px-3 py-2 text-xs font-bold uppercase transition ${
+                        className={`min-w-16 px-6 py-3 rounded-default transition-all ${
                           value === normalizedSelectedAttribute
-                            ? "border-black bg-black text-white"
-                            : "border-gray-300 bg-white text-gray-700 hover:border-black"
+                            ? "bg-black text-white"
+                            : "label-sm mb-0 bg-white border border-gray-100 hover:border-black"
                         }`}
                       >
                         {value}
@@ -332,23 +360,21 @@ const UserProductDetails = () => {
                     ))}
                   </div>
                 </div>
-              ) : null}
+              )}
 
-              {availableColors.length > 0 ? (
-                <div className="space-y-3">
-                  <p className="text-[10px] font-bold tracking-[0.3em] text-gray-400 uppercase">
-                    Color
-                  </p>
-                  <div className="flex flex-wrap gap-2">
+              {availableColors.length > 0 && (
+                <div className="space-y-6">
+                  <p className="label-sm mb-0">Palette</p>
+                  <div className="flex flex-wrap gap-3">
                     {availableColors.map((color) => (
                       <button
                         key={color}
                         type="button"
                         onClick={() => handleColorSelect(color)}
-                        className={`border px-3 py-2 text-[10px] font-bold tracking-[0.22em] uppercase transition ${
+                        className={`px-6 py-3 rounded-default transition-all ${
                           color === normalizedSelectedColor
-                            ? "border-black bg-black text-white"
-                            : "border-gray-300 bg-white text-gray-700 hover:border-black"
+                            ? "bg-black text-white"
+                            : "label-sm mb-0 bg-white border border-gray-100 hover:border-black"
                         }`}
                       >
                         {color}
@@ -356,28 +382,26 @@ const UserProductDetails = () => {
                     ))}
                   </div>
                 </div>
-              ) : null}
+              )}
 
-              <div className="space-y-3">
-                <p className="text-[10px] font-bold tracking-[0.3em] text-gray-400 uppercase">
-                  Quantity
-                </p>
-                <div className="inline-flex items-center border border-gray-300">
+              <div className="space-y-6">
+                <p className="label-sm mb-0">Quantity</p>
+                <div className="inline-flex items-center border border-gray-100 rounded-full px-6 py-2">
                   <button
                     type="button"
                     onClick={decreaseQuantity}
-                    className="h-11 w-11 border-r border-gray-300 text-lg font-medium disabled:cursor-not-allowed disabled:opacity-40"
+                    className="label-sm mb-0 h-10 w-10 flex items-center justify-center disabled:opacity-30"
                     disabled={displayStock === 0 || normalizedQuantity <= 1}
                   >
-                    -
+                    —
                   </button>
-                  <span className="inline-flex h-11 min-w-14 items-center justify-center text-sm font-semibold">
+                  <span className="label-sm mb-0 min-w-12 text-center text-lg">
                     {normalizedQuantity}
                   </span>
                   <button
                     type="button"
                     onClick={increaseQuantity}
-                    className="h-11 w-11 border-l border-gray-300 text-lg font-medium disabled:cursor-not-allowed disabled:opacity-40"
+                    className="label-sm mb-0 h-10 w-10 flex items-center justify-center disabled:opacity-30"
                     disabled={displayStock === 0 || normalizedQuantity >= displayStock}
                   >
                     +
@@ -386,32 +410,29 @@ const UserProductDetails = () => {
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex flex-col gap-4">
               <button
                 type="button"
                 disabled={displayStock === 0}
-                onClick={() => alert("Cart integration coming soon")}
-                className="w-full border border-black bg-black px-6 py-4 text-[11px] font-bold tracking-[0.3em] text-white uppercase transition hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-gray-200 disabled:text-gray-500"
+                onClick={() => alert("Added to Archive Bag")}
+                className="btn-primary w-full py-6 text-sm"
               >
-                Add To Cart
+                Add to Bag
               </button>
               <button
                 type="button"
                 disabled={displayStock === 0}
-                onClick={() => alert("Checkout integration coming soon")}
-                className="w-full border border-black px-6 py-4 text-[11px] font-bold tracking-[0.3em] uppercase transition hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:border-gray-300 disabled:text-gray-400"
+                onClick={() => alert("Proceeding to Private Checkout")}
+                className="btn-outline w-full py-6 text-sm"
               >
                 Buy Now
               </button>
             </div>
 
-            <div className="space-y-2 border border-gray-200 p-5">
-              <h3 className="text-[11px] font-bold tracking-[0.3em] text-gray-500 uppercase">
-                Product Highlights
-              </h3>
-              <p className="text-sm text-gray-600">
-                Premium construction, detailed finishing, and curated fit crafted
-                for everyday elevated wear.
+            <div className="surface-card p-10 bg-gray-50/50 border-none">
+              <h3 className="label-sm mb-4 text-black lowercase italic underline underline-offset-8">Studio Highlights</h3>
+              <p className="text-secondary italic leading-relaxed text-sm">
+                Architectural construction, precision tailoring, and limited-edition materials curated for a refined silhouette.
               </p>
             </div>
           </div>

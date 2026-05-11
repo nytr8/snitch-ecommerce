@@ -7,22 +7,22 @@ const navItems = [
   { name: "Add Product", to: "/seller/create-product" },
 ];
 
-const SellerLayout = ({ title, subtitle, ctaLabel, ctaLink, children }) => {
+const SellerLayout = ({ title, subtitle, ctaLabel, ctaLink, extraActions, children }) => {
   const { pathname } = useLocation();
 
   return (
-    <div className="flex min-h-screen bg-[#FCFBFA] text-[#1A1A1A]">
-      <aside className="fixed flex h-full w-72 flex-col border-r border-gray-200 bg-white transition-all duration-300">
-        <div className="border-b border-gray-100 p-10">
-          <h1 className="display-font text-3xl font-bold tracking-tighter uppercase">
+    <div className="flex min-h-screen bg-background text-on-background">
+      <aside className="fixed flex h-full w-80 flex-col border-r border-gray-100 bg-white">
+        <div className="p-12">
+          <Link to="/" className="display-font text-4xl font-bold tracking-tighter uppercase block mb-2">
             Snitch
-          </h1>
-          <p className="mt-2 text-[9px] font-bold tracking-[0.4em] text-gray-400 uppercase">
-            Seller Portal
+          </Link>
+          <p className="label-sm text-secondary">
+            Workspace v1.0
           </p>
         </div>
 
-        <nav className="flex-1 space-y-4 p-8">
+        <nav className="flex-1 px-8 space-y-2">
           {navItems.map((item) => {
             const isActive = pathname === item.to;
 
@@ -30,52 +30,67 @@ const SellerLayout = ({ title, subtitle, ctaLabel, ctaLink, children }) => {
               <Link
                 key={item.name}
                 to={item.to}
-                className={`flex items-center border px-4 py-3 text-[11px] font-bold tracking-[0.3em] uppercase transition-all duration-200 ${
+                className={`flex items-center px-6 py-4 rounded-default transition-all duration-300 ${
                   isActive
-                    ? "border-black bg-[#1A1A1A] text-white"
-                    : "border-transparent text-gray-400 hover:border-gray-100 hover:text-[#1A1A1A]"
+                    ? "bg-black text-white"
+                    : "label-sm text-secondary hover:bg-gray-50 hover:text-black mb-0"
                 }`}
               >
-                {item.name}
+                <span className={isActive ? "label-sm mb-0 text-white" : "label-sm mb-0"}>
+                  {item.name}
+                </span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="border-t border-gray-100 bg-gray-50/50 p-8">
-          <div className="flex items-center gap-4 px-2">
-            <div className="flex h-10 w-10 items-center justify-center bg-[#1A1A1A] text-[10px] font-bold tracking-widest text-white">
+        <div className="p-8 border-t border-gray-50">
+          <div className="flex items-center gap-4 p-4 rounded-default bg-gray-50/50">
+            <div className="h-10 w-10 bg-black rounded-full flex items-center justify-center text-white text-[10px] font-bold">
               JD
             </div>
-            <div className="text-[10px] tracking-[0.2em] uppercase">
-              <p className="font-bold">John Doe</p>
-              <p className="mt-1 text-gray-400">Authorized Seller</p>
+            <div>
+              <p className="label-sm mb-0 text-black">John Doe</p>
+              <p className="text-[10px] text-secondary italic lowercase">Authorized Seller</p>
             </div>
           </div>
         </div>
       </aside>
 
-      <main className="ml-72 max-w-[1500px] flex-1 p-16">
-        <header className="mb-16 flex items-end justify-between border-b border-gray-200 pb-12">
-          <div>
-            <p className="mb-2 text-[10px] font-bold tracking-[0.4em] text-gray-400 uppercase">
-              {subtitle}
+      <main className="ml-80 flex-1 p-20 max-w-[1600px]">
+        <header className="mb-20 flex items-end justify-between border-b border-gray-50 pb-16">
+          <div className="fade-up">
+            <p className="label-sm text-secondary mb-4">
+              {subtitle || "Seller Portal"}
             </p>
-            <h2 className="display-font text-5xl font-bold tracking-tight">
+            <h2 className="display-font text-6xl tracking-tight">
               {title}
             </h2>
           </div>
-          {ctaLink && ctaLabel ? (
-            <Link
-              to={ctaLink}
-              className="bg-[#1A1A1A] px-10 py-4 text-[11px] font-bold tracking-[0.3em] text-white uppercase transition-all hover:bg-black"
-            >
-              {ctaLabel}
-            </Link>
-          ) : null}
+          <div className="flex gap-4">
+            {extraActions && extraActions.map((action, index) => (
+              <button
+                key={index}
+                onClick={action.onClick}
+                className={action.variant === 'outline' ? 'btn-outline' : 'btn-primary'}
+              >
+                {action.label}
+              </button>
+            ))}
+            {ctaLink && ctaLabel && (
+              <Link
+                to={ctaLink}
+                className="btn-primary"
+              >
+                {ctaLabel}
+              </Link>
+            )}
+          </div>
         </header>
 
-        {children}
+        <div className="fade-up" style={{ animationDelay: '0.1s' }}>
+          {children}
+        </div>
       </main>
     </div>
   );
