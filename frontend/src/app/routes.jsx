@@ -9,24 +9,9 @@ import Home from "../features/home/pages/Home";
 import UserProductDetails from "../features/home/pages/UserProductDetails";
 import Protected from "../features/auth/pages/Protected";
 import Cart from "../features/products/pages/Cart";
+import Applayout from "./Applayout";
 
 export const router = createBrowserRouter([
-  {
-    path: "/",
-    element: (
-      <Protected>
-        <Home />
-      </Protected>
-    ),
-  },
-  {
-    path: "/cart",
-    element: (
-      <Protected>
-        <Cart />
-      </Protected>
-    ),
-  },
   {
     path: "/register",
     element: <Register />,
@@ -35,52 +20,66 @@ export const router = createBrowserRouter([
     path: "/login",
     element: <Login />,
   },
+
   {
-    path: "/product/:id",
-    element: (
-      <Protected>
-        <UserProductDetails />
-      </Protected>
-    ),
-  },
-  {
-    path: "/seller",
+    element: <Applayout />,
     children: [
       {
-        index: true,
-        element: <Navigate to="/seller/dashboard" replace />,
+        path: "/",
+        element: <Home />,
       },
       {
-        path: "dashboard",
+        path: "/cart",
         element: (
-          <Protected sellerOnly>
-            <Dashboard />
+          <Protected>
+            <Cart />
           </Protected>
         ),
       },
       {
-        path: "create-product",
-        element: (
-          <Protected sellerOnly>
-            <CreateProduct />
-          </Protected>
-        ),
+        path: "/product/:id",
+        element: <UserProductDetails />,
       },
       {
-        path: "products",
-        element: (
-          <Protected sellerOnly>
-            <SellerProducts />
-          </Protected>
-        ),
-      },
-      {
-        path: "product/:id",
-        element: (
-          <Protected sellerOnly>
-            <ProductDetails />
-          </Protected>
-        ),
+        path: "/seller",
+        children: [
+          {
+            index: true,
+            element: <Navigate to="/seller/dashboard" replace />,
+          },
+          {
+            path: "seller/dashboard",
+            element: (
+              <Protected sellerOnly>
+                <Dashboard />
+              </Protected>
+            ),
+          },
+          {
+            path: "seller/create-product",
+            element: (
+              <Protected sellerOnly>
+                <CreateProduct />
+              </Protected>
+            ),
+          },
+          {
+            path: "seller/products",
+            element: (
+              <Protected sellerOnly>
+                <SellerProducts />
+              </Protected>
+            ),
+          },
+          {
+            path: "seller/product/:id",
+            element: (
+              <Protected sellerOnly>
+                <ProductDetails />
+              </Protected>
+            ),
+          },
+        ],
       },
     ],
   },

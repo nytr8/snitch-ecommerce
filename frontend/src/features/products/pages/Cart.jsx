@@ -60,8 +60,6 @@ const Cart = () => {
         amount,
         currency,
       };
-
-
     });
   }, [cartItems]);
 
@@ -77,31 +75,26 @@ const Cart = () => {
   const currency = normalizedItems[0]?.currency || DEFAULT_CURRENCY;
   const isEmpty = normalizedItems.length === 0;
 
-  const onUpdateQuantity = (productId, variantId, selectedAttribute, newQuantity) => {
+  const onUpdateQuantity = (
+    productId,
+    variantId,
+    selectedAttribute,
+    newQuantity,
+  ) => {
     if (newQuantity < 1) {
       handleRemoveFromCart({ productId, variantId, selectedAttribute });
     } else {
-      handleUpdateQuantity({ productId, variantId, selectedAttribute, quantity: newQuantity });
+      handleUpdateQuantity({
+        productId,
+        variantId,
+        selectedAttribute,
+        quantity: newQuantity,
+      });
     }
   };
 
   return (
     <div className="min-h-screen bg-background text-on-background">
-      <nav className="nav-blur border-b border-gray-100 px-edge py-8 flex items-center justify-between sticky top-0 z-50">
-        <Link
-          to="/"
-          className="display-font text-4xl font-bold tracking-tighter uppercase"
-        >
-          Snitch
-        </Link>
-        <Link
-          to="/"
-          className="label-sm mb-0 text-secondary hover:text-black transition-colors italic"
-        >
-          Continue Browsing
-        </Link>
-      </nav>
-
       <main className="max-w-7xl mx-auto px-edge py-24">
         <header className="mb-20 fade-up">
           <p className="label-sm text-secondary mb-4">Your Selection</p>
@@ -168,11 +161,18 @@ const Cart = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center justify-between pt-6">
                       <div className="flex items-center border border-gray-200 rounded-full overflow-hidden">
                         <button
-                          onClick={() => onUpdateQuantity(item.productId, item.variantId, item.selectedAttribute, item.quantity - 1)}
+                          onClick={() =>
+                            onUpdateQuantity(
+                              item.productId,
+                              item.variantId,
+                              item.selectedAttribute,
+                              item.quantity - 1,
+                            )
+                          }
                           className="w-10 h-10 flex items-center justify-center hover:bg-gray-50 transition-colors"
                           aria-label="Decrease quantity"
                         >
@@ -182,16 +182,29 @@ const Cart = () => {
                           {String(item.quantity).padStart(2, "0")}
                         </span>
                         <button
-                          onClick={() => onUpdateQuantity(item.productId, item.variantId, item.selectedAttribute, item.quantity + 1)}
+                          onClick={() =>
+                            onUpdateQuantity(
+                              item.productId,
+                              item.variantId,
+                              item.selectedAttribute,
+                              item.quantity + 1,
+                            )
+                          }
                           className="w-10 h-10 flex items-center justify-center hover:bg-gray-50 transition-colors"
                           aria-label="Increase quantity"
                         >
                           +
                         </button>
                       </div>
-                      
+
                       <button
-                        onClick={() => handleRemoveFromCart({ productId: item.productId, variantId: item.variantId, selectedAttribute: item.selectedAttribute })}
+                        onClick={() =>
+                          handleRemoveFromCart({
+                            productId: item.productId,
+                            variantId: item.variantId,
+                            selectedAttribute: item.selectedAttribute,
+                          })
+                        }
                         className="label-sm mb-0 text-red-500 hover:text-red-700 transition-colors lowercase italic underline underline-offset-4"
                       >
                         Remove
@@ -208,7 +221,9 @@ const Cart = () => {
             style={{ animationDelay: "0.2s" }}
           >
             <div className="surface-card p-12 sticky top-32">
-              <h3 className="label-sm mb-10 text-black uppercase tracking-widest">Summary</h3>
+              <h3 className="label-sm mb-10 text-black uppercase tracking-widest">
+                Summary
+              </h3>
               <div className="space-y-6 mb-10">
                 <div className="flex justify-between">
                   <p className="label-sm text-secondary lowercase italic mb-0">
@@ -225,13 +240,15 @@ const Cart = () => {
               </div>
               <div className="h-[1px] bg-gray-100 mb-10"></div>
               <div className="flex justify-between mb-12">
-                <p className="label-sm text-black font-bold uppercase mb-0">Total</p>
+                <p className="label-sm text-black font-bold uppercase mb-0">
+                  Total
+                </p>
                 <p className="display-font text-4xl">
                   {formatMoney(subtotal, currency)}
                 </p>
               </div>
-              <button 
-                className="btn-primary w-full py-6 text-sm uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed" 
+              <button
+                className="btn-primary w-full py-6 text-sm uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isEmpty}
               >
                 Proceed to Checkout
@@ -248,4 +265,3 @@ const Cart = () => {
 };
 
 export default Cart;
-

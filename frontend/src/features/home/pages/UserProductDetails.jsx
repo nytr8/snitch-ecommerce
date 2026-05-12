@@ -144,7 +144,6 @@ const UserProductDetails = () => {
     );
   }, [variants, normalizedSelectedColor]);
 
-
   const attributeName = useMemo(() => {
     return (
       variantsForSelectedColor[0]?.attributes?.name ||
@@ -303,21 +302,6 @@ const UserProductDetails = () => {
 
   return (
     <div className="min-h-screen bg-background text-on-background">
-      <nav className="nav-blur border-b border-gray-100 px-edge py-8 flex items-center justify-between">
-        <Link
-          to="/"
-          className="display-font text-4xl font-bold tracking-tighter uppercase"
-        >
-          Snitch
-        </Link>
-        <Link
-          to="/"
-          className="label-sm mb-0 text-secondary hover:text-black transition-colors italic"
-        >
-          Back to Archive
-        </Link>
-      </nav>
-
       <main className="max-w-[1600px] mx-auto px-edge py-16">
         <div className="label-sm text-secondary mb-12 lowercase italic fade-up">
           {product.category || "General"} / Archival Details
@@ -389,7 +373,9 @@ const UserProductDetails = () => {
                 <div className="space-y-6">
                   <div className="flex justify-between items-end">
                     <p className="label-sm mb-0">Palette</p>
-                    <p className="label-xs text-secondary lowercase italic">{normalizedSelectedColor}</p>
+                    <p className="label-xs text-secondary lowercase italic">
+                      {normalizedSelectedColor}
+                    </p>
                   </div>
                   <div className="flex flex-wrap gap-4">
                     {availableColors.map((color) => (
@@ -404,12 +390,14 @@ const UserProductDetails = () => {
                         }`}
                         title={color.name}
                       >
-                        <img 
-                          src={color.thumbnail} 
-                          alt={color.name} 
+                        <img
+                          src={color.thumbnail}
+                          alt={color.name}
                           className="w-full h-full object-cover"
                         />
-                        <div className={`absolute inset-0 bg-black/5 transition-opacity ${color.name === normalizedSelectedColor ? 'opacity-0' : 'group-hover:opacity-0'}`} />
+                        <div
+                          className={`absolute inset-0 bg-black/5 transition-opacity ${color.name === normalizedSelectedColor ? "opacity-0" : "group-hover:opacity-0"}`}
+                        />
                       </button>
                     ))}
                   </div>
@@ -446,9 +434,13 @@ const UserProductDetails = () => {
 
             <div className="space-y-8">
               <div className="flex flex-col gap-2 p-6 bg-gray-50/50 rounded-default border border-gray-100">
-                <p className="label-xs text-gray-400 uppercase tracking-widest">Currently Selected</p>
+                <p className="label-xs text-gray-400 uppercase tracking-widest">
+                  Currently Selected
+                </p>
                 <p className="label-sm mb-0 text-black">
-                  {normalizedSelectedColor} / {normalizedSelectedAttribute} ({normalizedQuantity} piece{normalizedQuantity !== 1 ? 's' : ''})
+                  {normalizedSelectedColor} / {normalizedSelectedAttribute} (
+                  {normalizedQuantity} piece
+                  {normalizedQuantity !== 1 ? "s" : ""})
                 </p>
               </div>
 
@@ -461,7 +453,6 @@ const UserProductDetails = () => {
                       quantity: normalizedQuantity,
                       selectedAttribute: normalizedSelectedAttribute,
                     })
-
                   }
                   type="button"
                   disabled={displayStock === 0}
@@ -479,7 +470,6 @@ const UserProductDetails = () => {
                 </button>
               </div>
             </div>
-
 
             <div className="surface-card p-10 bg-gray-50/50 border-none">
               <h3 className="label-sm mb-4 text-black lowercase italic underline underline-offset-8">
