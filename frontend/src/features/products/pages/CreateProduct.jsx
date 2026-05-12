@@ -9,6 +9,7 @@ const CreateProduct = () => {
     description: "",
     category: "",
     amount: "",
+    quantity: "",
     currency: "INR",
   });
   const [images, setImages] = useState([]);
@@ -62,6 +63,11 @@ const CreateProduct = () => {
       return;
     }
 
+    if (formData.quantity === "" || Number(formData.quantity) < 0) {
+      alert("Please enter a valid quantity");
+      return;
+    }
+
     if (images.length === 0) {
       alert("Please upload at least one product image");
       return;
@@ -74,6 +80,7 @@ const CreateProduct = () => {
       productFormData.append("description", formData.description);
       productFormData.append("category", formData.category);
       productFormData.append("priceAmount", parseFloat(formData.amount));
+      productFormData.append("quantity", Number(formData.quantity));
       productFormData.append("priceCurrency", formData.currency);
 
       images.forEach((image) => {
@@ -91,6 +98,7 @@ const CreateProduct = () => {
         description: "",
         category: "",
         amount: "",
+        quantity: "",
         currency: "INR",
       });
       setImages([]);
@@ -104,10 +112,7 @@ const CreateProduct = () => {
   };
 
   return (
-    <SellerLayout
-      title="Register Piece"
-      subtitle="Studio Inventory"
-    >
+    <SellerLayout title="Register Piece" subtitle="Studio Inventory">
       <div className="w-full max-w-6xl">
         <form
           onSubmit={handleSubmit}
@@ -144,11 +149,15 @@ const CreateProduct = () => {
                           }}
                           className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center"
                         >
-                          <span className="label-sm text-white border-b border-white">Remove</span>
+                          <span className="label-sm text-white border-b border-white">
+                            Remove
+                          </span>
                         </button>
                       </>
                     ) : (
-                      <span className="label-sm text-gray-300 lowercase italic">Add</span>
+                      <span className="label-sm text-gray-300 lowercase italic">
+                        Add
+                      </span>
                     )}
                     <input
                       type="file"
@@ -205,7 +214,7 @@ const CreateProduct = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
               <div>
                 <label className="label-sm">Base Valuation</label>
                 <div className="relative">
@@ -218,6 +227,20 @@ const CreateProduct = () => {
                     className="field-input text-lg"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="label-sm">Quantity</label>
+                <input
+                  type="number"
+                  name="quantity"
+                  value={formData.quantity}
+                  onChange={handleInputChange}
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                  className="field-input text-lg"
+                />
               </div>
 
               <div>
@@ -251,6 +274,7 @@ const CreateProduct = () => {
                     description: "",
                     category: "",
                     amount: "",
+                    quantity: "",
                     currency: "INR",
                   });
                   setImages([]);

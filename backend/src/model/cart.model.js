@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { priceSchema } from "./priceSchema.js";
 
 const cartSchema = new mongoose.Schema(
   {
@@ -16,9 +17,13 @@ const cartSchema = new mongoose.Schema(
         },
         variant: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "product.variants",
-          required: true,
+          required: false, // Made optional for base products
         },
+        selectedAttribute: {
+          type: String,
+        },
+
+
         quantity: {
           type: Number,
           default: 1,

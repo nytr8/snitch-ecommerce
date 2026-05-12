@@ -13,7 +13,7 @@ const validate = (req, res, next) => {
 
 export const addToCartValidator = [
   param("productId").isMongoId().withMessage("Invalid product ID"),
-  param("variantId").isMongoId().withMessage("Invalid variant ID"),
+  param("variantId").optional().isMongoId().withMessage("Invalid variant ID"),
   body("quantity")
     .isInt({ min: 1 })
     .withMessage("Quantity must be a positive integer"),

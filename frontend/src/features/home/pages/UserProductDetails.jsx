@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getProductById } from "../../products/services/product.api";
+import { useCart } from "../../cart/hook/useCart";
 
 const cleanText = (value) =>
   typeof value === "string" ? value.trim() : String(value || "").trim();
@@ -50,7 +51,9 @@ const ProductImageGallery = ({ images, title }) => {
               type="button"
               onClick={() => setActiveIndex(index)}
               className={`aspect-square overflow-hidden rounded-default border transition-all ${
-                index === safeIndex ? "border-black scale-95" : "border-transparent opacity-60 hover:opacity-100"
+                index === safeIndex
+                  ? "border-black scale-95"
+                  : "border-transparent opacity-60 hover:opacity-100"
               }`}
               aria-label={`View ${title} image ${index + 1}`}
             >
@@ -75,6 +78,7 @@ const UserProductDetails = () => {
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedAttributeValue, setSelectedAttributeValue] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const { handleAddToCart } = useCart();
 
   useEffect(() => {
     const loadProductDetails = async () => {
@@ -113,20 +117,22 @@ const UserProductDetails = () => {
         return;
       }
       seenColorKeys.add(colorKey);
-      uniqueColors.push(color);
+      uniqueColors.push({
+        name: color,
+        thumbnail: variant?.images?.[0]?.url || product?.images?.[0]?.url,
+      });
     });
 
     return uniqueColors;
-  }, [variants]);
+  }, [variants, product]);
 
   const normalizedSelectedColor = useMemo(() => {
     if (availableColors.length === 0) return "";
     const selectedColorKey = normalizeForMatch(selectedColor);
-    return (
-      availableColors.find(
-        (colorOption) => normalizeForMatch(colorOption) === selectedColorKey,
-      ) || availableColors[0]
+    const found = availableColors.find(
+      (colorOption) => normalizeForMatch(colorOption.name) === selectedColorKey,
     );
+    return found ? found.name : availableColors[0].name;
   }, [availableColors, selectedColor]);
 
   const variantsForSelectedColor = useMemo(() => {
@@ -137,6 +143,7 @@ const UserProductDetails = () => {
       (variant) => normalizeForMatch(variant?.color) === selectedColorKey,
     );
   }, [variants, normalizedSelectedColor]);
+
 
   const attributeName = useMemo(() => {
     return (
@@ -297,8 +304,18 @@ const UserProductDetails = () => {
   return (
     <div className="min-h-screen bg-background text-on-background">
       <nav className="nav-blur border-b border-gray-100 px-edge py-8 flex items-center justify-between">
-        <Link to="/" className="display-font text-4xl font-bold tracking-tighter uppercase">Snitch</Link>
-        <Link to="/" className="label-sm mb-0 text-secondary hover:text-black transition-colors italic">Back to Archive</Link>
+        <Link
+          to="/"
+          className="display-font text-4xl font-bold tracking-tighter uppercase"
+        >
+          Snitch
+        </Link>
+        <Link
+          to="/"
+          className="label-sm mb-0 text-secondary hover:text-black transition-colors italic"
+        >
+          Back to Archive
+        </Link>
       </nav>
 
       <main className="max-w-[1600px] mx-auto px-edge py-16">
@@ -308,7 +325,9 @@ const UserProductDetails = () => {
 
         <div className="grid grid-cols-1 gap-24 xl:grid-cols-[1.1fr_1fr] fade-up">
           <ProductImageGallery
-            key={selectedVariant?._id || normalizedSelectedColor || "default-color"}
+            key={
+              selectedVariant?._id || normalizedSelectedColor || "default-color"
+            }
             images={displayedImages}
             title={product.title}
           />
@@ -335,8 +354,12 @@ const UserProductDetails = () => {
             <div className="space-y-10 border-y border-gray-50 py-12">
               <div className="flex items-center gap-4">
                 <span className="label-sm mb-0">Availability:</span>
-                <span className={`label-sm mb-0 lowercase italic ${displayStock > 0 ? "text-green-600" : "text-red-500"}`}>
-                  {displayStock > 0 ? `In Stock / ${displayStock} available` : "Sold Out"}
+                <span
+                  className={`label-sm mb-0 lowercase italic ${displayStock > 0 ? "text-green-600" : "text-red-500"}`}
+                >
+                  {displayStock > 0
+                    ? `In Stock / ${displayStock} available`
+                    : "Sold Out"}
                 </span>
               </div>
 
@@ -364,20 +387,29 @@ const UserProductDetails = () => {
 
               {availableColors.length > 0 && (
                 <div className="space-y-6">
-                  <p className="label-sm mb-0">Palette</p>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex justify-between items-end">
+                    <p className="label-sm mb-0">Palette</p>
+                    <p className="label-xs text-secondary lowercase italic">{normalizedSelectedColor}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-4">
                     {availableColors.map((color) => (
                       <button
-                        key={color}
+                        key={color.name}
                         type="button"
-                        onClick={() => handleColorSelect(color)}
-                        className={`px-6 py-3 rounded-default transition-all ${
-                          color === normalizedSelectedColor
-                            ? "bg-black text-white"
-                            : "label-sm mb-0 bg-white border border-gray-100 hover:border-black"
+                        onClick={() => handleColorSelect(color.name)}
+                        className={`group relative w-16 aspect-[3/4] rounded-default overflow-hidden border-2 transition-all ${
+                          color.name === normalizedSelectedColor
+                            ? "border-black scale-105"
+                            : "border-transparent opacity-60 hover:opacity-100"
                         }`}
+                        title={color.name}
                       >
-                        {color}
+                        <img 
+                          src={color.thumbnail} 
+                          alt={color.name} 
+                          className="w-full h-full object-cover"
+                        />
+                        <div className={`absolute inset-0 bg-black/5 transition-opacity ${color.name === normalizedSelectedColor ? 'opacity-0' : 'group-hover:opacity-0'}`} />
                       </button>
                     ))}
                   </div>
@@ -402,7 +434,9 @@ const UserProductDetails = () => {
                     type="button"
                     onClick={increaseQuantity}
                     className="label-sm mb-0 h-10 w-10 flex items-center justify-center disabled:opacity-30"
-                    disabled={displayStock === 0 || normalizedQuantity >= displayStock}
+                    disabled={
+                      displayStock === 0 || normalizedQuantity >= displayStock
+                    }
                   >
                     +
                   </button>
@@ -410,29 +444,50 @@ const UserProductDetails = () => {
               </div>
             </div>
 
-            <div className="flex flex-col gap-4">
-              <button
-                type="button"
-                disabled={displayStock === 0}
-                onClick={() => alert("Added to Archive Bag")}
-                className="btn-primary w-full py-6 text-sm"
-              >
-                Add to Bag
-              </button>
-              <button
-                type="button"
-                disabled={displayStock === 0}
-                onClick={() => alert("Proceeding to Private Checkout")}
-                className="btn-outline w-full py-6 text-sm"
-              >
-                Buy Now
-              </button>
+            <div className="space-y-8">
+              <div className="flex flex-col gap-2 p-6 bg-gray-50/50 rounded-default border border-gray-100">
+                <p className="label-xs text-gray-400 uppercase tracking-widest">Currently Selected</p>
+                <p className="label-sm mb-0 text-black">
+                  {normalizedSelectedColor} / {normalizedSelectedAttribute} ({normalizedQuantity} piece{normalizedQuantity !== 1 ? 's' : ''})
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <button
+                  onClick={() =>
+                    handleAddToCart({
+                      productId: product._id,
+                      variantId: selectedVariant?._id,
+                      quantity: normalizedQuantity,
+                      selectedAttribute: normalizedSelectedAttribute,
+                    })
+
+                  }
+                  type="button"
+                  disabled={displayStock === 0}
+                  className="btn-primary w-full py-6 text-sm uppercase tracking-widest"
+                >
+                  {displayStock > 0 ? "Add to Bag" : "Currently Unavailable"}
+                </button>
+                <button
+                  type="button"
+                  disabled={displayStock === 0}
+                  onClick={() => alert("Proceeding to Private Checkout")}
+                  className="btn-outline w-full py-6 text-sm uppercase tracking-widest"
+                >
+                  Buy Now
+                </button>
+              </div>
             </div>
 
+
             <div className="surface-card p-10 bg-gray-50/50 border-none">
-              <h3 className="label-sm mb-4 text-black lowercase italic underline underline-offset-8">Studio Highlights</h3>
+              <h3 className="label-sm mb-4 text-black lowercase italic underline underline-offset-8">
+                Studio Highlights
+              </h3>
               <p className="text-secondary italic leading-relaxed text-sm">
-                Architectural construction, precision tailoring, and limited-edition materials curated for a refined silhouette.
+                Architectural construction, precision tailoring, and
+                limited-edition materials curated for a refined silhouette.
               </p>
             </div>
           </div>

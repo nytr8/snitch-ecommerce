@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { priceSchema } from "./priceSchema";
+import { priceSchema } from "./priceSchema.js";
 
 const productSchema = new mongoose.Schema(
   {
@@ -30,6 +30,11 @@ const productSchema = new mongoose.Schema(
     },
     category: {
       type: String,
+      required: true,
+    },
+    quantity: {
+      type: Number,
+      default: 0,
       required: true,
     },
     variants: [

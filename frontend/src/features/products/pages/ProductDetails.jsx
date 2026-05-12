@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import { useParams, Link } from "react-router-dom";
 import useProduct from "../hooks/useProduct";
 import SellerLayout from "../components/SellerLayout";
+import { useCart } from "../../cart/hook/useCart";
+// import { handleAddToCart } from "../../cart/hook/useCart";
 
 const ProductImageCarousel = ({ images, title, carouselKey }) => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -72,7 +74,9 @@ const ProductImageCarousel = ({ images, title, carouselKey }) => {
               type="button"
               onClick={() => setActiveImageIndex(index)}
               className={`aspect-square overflow-hidden rounded-default border transition-all ${
-                index === safeActiveImageIndex ? "border-black" : "border-transparent opacity-60"
+                index === safeActiveImageIndex
+                  ? "border-black"
+                  : "border-transparent opacity-60"
               }`}
             >
               <img
@@ -94,7 +98,7 @@ const ProductDetails = () => {
   const productDetails = useSelector((state) => state.product.productDetails);
   const loading = useSelector((state) => state.product.loading);
   const error = useSelector((state) => state.product.error);
-  
+
   const [showVariantForm, setShowVariantForm] = useState(false);
   const [variantForm, setVariantForm] = useState({
     attributeName: "",
@@ -173,22 +177,32 @@ const ProductDetails = () => {
 
   const handleVariantSubmit = async (event) => {
     event.preventDefault();
-    if (!variantForm.attributeName.trim() || !variantForm.attributeValues.trim() || !variantForm.color.trim() || !variantForm.stock || !variantForm.amount || variantImages.length === 0) {
+    if (
+      !variantForm.attributeName.trim() ||
+      !variantForm.attributeValues.trim() ||
+      !variantForm.color.trim() ||
+      !variantForm.stock ||
+      !variantForm.amount ||
+      variantImages.length === 0
+    ) {
       alert("Please complete all variant details and upload images.");
       return;
     }
 
     setIsSubmittingVariant(true);
     try {
-      const parsedValues = variantForm.attributeValues.split(",").map(v => v.trim()).filter(Boolean);
+      const parsedValues = variantForm.attributeValues
+        .split(",")
+        .map((v) => v.trim())
+        .filter(Boolean);
       const formData = new FormData();
       formData.append("name", variantForm.attributeName.trim());
-      parsedValues.forEach(v => formData.append("values", v));
+      parsedValues.forEach((v) => formData.append("values", v));
       formData.append("color", variantForm.color.trim());
       formData.append("stock", Number(variantForm.stock));
       formData.append("priceAmount", Number(variantForm.amount));
       formData.append("priceCurrency", variantForm.currency);
-      variantImages.forEach(img => formData.append("images", img));
+      variantImages.forEach((img) => formData.append("images", img));
 
       const result = await handleAddProductVariant(id, formData);
       if (result.success) {
@@ -204,9 +218,28 @@ const ProductDetails = () => {
     }
   };
 
-  if (loading) return <SellerLayout title="Piece Details" subtitle="Retrieving Archive..."><div className="py-24 text-center label-sm text-secondary italic">Loading...</div></SellerLayout>;
-  if (error) return <SellerLayout title="Piece Details" subtitle="Error"><div className="label-sm text-red-500 p-8">{error}</div></SellerLayout>;
-  if (!productDetails) return <SellerLayout title="Piece Details" subtitle="Not Found"><div className="py-24 text-center label-sm text-secondary italic">Piece not found.</div></SellerLayout>;
+  if (loading)
+    return (
+      <SellerLayout title="Piece Details" subtitle="Retrieving Archive...">
+        <div className="py-24 text-center label-sm text-secondary italic">
+          Loading...
+        </div>
+      </SellerLayout>
+    );
+  if (error)
+    return (
+      <SellerLayout title="Piece Details" subtitle="Error">
+        <div className="label-sm text-red-500 p-8">{error}</div>
+      </SellerLayout>
+    );
+  if (!productDetails)
+    return (
+      <SellerLayout title="Piece Details" subtitle="Not Found">
+        <div className="py-24 text-center label-sm text-secondary italic">
+          Piece not found.
+        </div>
+      </SellerLayout>
+    );
 
   return (
     <SellerLayout
@@ -218,35 +251,51 @@ const ProductDetails = () => {
         {
           label: showVariantForm ? "Cancel Add" : "Add Variant",
           variant: "outline",
-          onClick: () => setShowVariantForm(!showVariantForm)
-        }
+          onClick: () => setShowVariantForm(!showVariantForm),
+        },
       ]}
     >
       <div className="relative">
-        <div className={`space-y-32 transition-all duration-700 ${showVariantForm ? 'blur-md opacity-30 pointer-events-none' : 'opacity-100'}`}>
-          
+        <div
+          className={`space-y-32 transition-all duration-700 ${showVariantForm ? "blur-md opacity-30 pointer-events-none" : "opacity-100"}`}
+        >
           {/* Main Info Card */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 fade-up">
-            <ProductImageCarousel images={productImages} title={productDetails.title} carouselKey={productDetails._id} />
+            <ProductImageCarousel
+              images={productImages}
+              title={productDetails.title}
+              carouselKey={productDetails._id}
+            />
             <div className="space-y-10">
               <div>
-                <p className="label-sm text-secondary mb-4 italic lowercase">{productDetails.category || "Studio Collection"}</p>
+                <p className="label-sm text-secondary mb-4 italic lowercase">
+                  {productDetails.category || "Studio Collection"}
+                </p>
                 <h3 className="display-font text-5xl font-bold tracking-tight uppercase mb-8 leading-tight">
                   {productDetails.title}
                 </h3>
                 <p className="display-font text-4xl font-bold">
-                  {productDetails.price?.amount} <span className="text-sm font-sans font-normal lowercase">{productDetails.price?.currency}</span>
+                  {productDetails.price?.amount}{" "}
+                  <span className="text-sm font-sans font-normal lowercase">
+                    {productDetails.price?.currency}
+                  </span>
                 </p>
               </div>
-              <p className="text-secondary italic leading-relaxed text-lg">"{productDetails.description}"</p>
+              <p className="text-secondary italic leading-relaxed text-lg">
+                "{productDetails.description}"
+              </p>
               <div className="flex gap-16 pt-6">
                 <div>
                   <p className="label-sm mb-2">Inventory</p>
-                  <p className="display-font text-3xl font-bold">{productDetails.stock || 0}</p>
+                  <p className="display-font text-3xl font-bold">
+                    {productDetails.quantity || 0}
+                  </p>
                 </div>
                 <div>
                   <p className="label-sm mb-2">Archived Variants</p>
-                  <p className="display-font text-3xl font-bold">{productVariants.length}</p>
+                  <p className="display-font text-3xl font-bold">
+                    {productVariants.length}
+                  </p>
                 </div>
               </div>
             </div>
@@ -255,36 +304,62 @@ const ProductDetails = () => {
           {/* Existing Variants Section - Horizontal List */}
           <div className="space-y-16">
             <div className="flex items-end justify-between border-b border-gray-100 pb-10">
-              <h4 className="display-font text-4xl tracking-tight uppercase">Product Variations</h4>
-              <p className="label-sm text-secondary lowercase italic">{productVariants.length} registered silhouettes</p>
+              <h4 className="display-font text-4xl tracking-tight uppercase">
+                Product Variations
+              </h4>
+              <p className="label-sm text-secondary lowercase italic">
+                {productVariants.length} registered silhouettes
+              </p>
             </div>
-            
+
             {productVariants.length > 0 ? (
               <div className="flex overflow-x-auto gap-12 pb-12 no-scrollbar snap-x snap-mandatory">
                 {productVariants.map((variant, index) => (
-                  <div 
-                    key={variant._id || index} 
-                    className="min-w-[400px] max-w-[400px] flex-shrink-0 snap-start surface-card p-10 group transition-all duration-500 hover:border-black fade-up" 
+                  <div
+                    key={variant._id || index}
+                    className="min-w-[400px] max-w-[400px] flex-shrink-0 snap-start surface-card p-10 group transition-all duration-500 hover:border-black fade-up"
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     <div className="flex justify-between items-start mb-8">
                       <div>
-                        <p className="label-sm text-black mb-2 lowercase">{variant.attributes?.name || "Size"}: {Array.isArray(variant.attributes?.values) ? variant.attributes.values.join(", ") : variant.attributes?.values || "N/A"}</p>
-                        <p className="label-sm text-secondary mb-0 lowercase italic">Palette: {variant.color}</p>
+                        <p className="label-sm text-black mb-2 lowercase">
+                          {variant.attributes?.name || "Size"}:{" "}
+                          {Array.isArray(variant.attributes?.values)
+                            ? variant.attributes.values.join(", ")
+                            : variant.attributes?.values || "N/A"}
+                        </p>
+                        <p className="label-sm text-secondary mb-0 lowercase italic">
+                          Palette: {variant.color}
+                        </p>
                       </div>
-                      <p className="display-font text-2xl font-bold">{variant.price?.amount} <span className="text-[10px] font-sans lowercase">{variant.price?.currency}</span></p>
+                      <p className="display-font text-2xl font-bold">
+                        {variant.price?.amount}{" "}
+                        <span className="text-[10px] font-sans lowercase">
+                          {variant.price?.currency}
+                        </span>
+                      </p>
                     </div>
-                    <ProductImageCarousel images={variant.images || []} title={variant.color} carouselKey={variant._id} />
+                    <ProductImageCarousel
+                      images={variant.images || []}
+                      title={variant.color}
+                      carouselKey={variant._id}
+                    />
                     <div className="mt-8 flex justify-between items-center border-t border-gray-50 pt-8">
-                      <span className="label-sm mb-0 text-[11px] lowercase italic">Stock: {variant.stock || 0} units</span>
-                      <button className="label-sm mb-0 text-black border-b border-black lowercase hover:text-secondary transition-colors">Update Piece</button>
+                      <span className="label-sm mb-0 text-[11px] lowercase italic">
+                        Stock: {variant.stock || 0} units
+                      </span>
+                      <button className="label-sm mb-0 text-black border-b border-black lowercase hover:text-secondary transition-colors">
+                        Update Piece
+                      </button>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="py-32 text-center surface-card border-dashed bg-gray-50/50">
-                <p className="label-sm text-secondary lowercase italic">No variations found in the studio archive.</p>
+                <p className="label-sm text-secondary lowercase italic">
+                  No variations found in the studio archive.
+                </p>
               </div>
             )}
           </div>
@@ -294,8 +369,8 @@ const ProductDetails = () => {
         {showVariantForm && (
           <>
             {/* Backdrop */}
-            <div 
-              className="fixed inset-0 bg-black/5 backdrop-blur-[2px] z-40" 
+            <div
+              className="fixed inset-0 bg-black/5 backdrop-blur-[2px] z-40"
               onClick={() => setShowVariantForm(false)}
             />
 
@@ -303,10 +378,17 @@ const ProductDetails = () => {
             <div className="fixed inset-y-0 right-0 w-full sm:w-[550px] bg-white shadow-2xl z-50 transform transition-transform duration-500 ease-in-out border-l border-gray-100 translate-x-0">
               <div className="h-full flex flex-col p-8 sm:p-16 overflow-y-auto">
                 <div className="flex justify-between items-center mb-16 border-b border-gray-50 pb-10">
-                  <h4 className="display-font text-4xl tracking-tight uppercase">Add Variation</h4>
-                  <button onClick={() => setShowVariantForm(false)} className="label-sm text-secondary hover:text-black">Close —</button>
+                  <h4 className="display-font text-4xl tracking-tight uppercase">
+                    Add Variation
+                  </h4>
+                  <button
+                    onClick={() => setShowVariantForm(false)}
+                    className="label-sm text-secondary hover:text-black"
+                  >
+                    Close —
+                  </button>
                 </div>
-                
+
                 <form onSubmit={handleVariantSubmit} className="space-y-12">
                   <div>
                     <label className="label-sm">Attribute Type</label>
@@ -383,21 +465,48 @@ const ProductDetails = () => {
                   </div>
 
                   <div>
-                    <label className="label-sm">Visuals ({variantImages.length}/7)</label>
+                    <label className="label-sm">
+                      Visuals ({variantImages.length}/7)
+                    </label>
                     <div className="grid grid-cols-4 gap-4 mt-8">
                       {Array.from({ length: 7 }).map((_, i) => (
-                        <label key={i} className={`aspect-[3/4] border rounded-default flex items-center justify-center cursor-pointer transition-all ${variantPreviewUrls[i] ? "border-gray-100 relative overflow-hidden" : "border-dashed border-gray-200 hover:border-black bg-gray-50/50"}`}>
+                        <label
+                          key={i}
+                          className={`aspect-[3/4] border rounded-default flex items-center justify-center cursor-pointer transition-all ${variantPreviewUrls[i] ? "border-gray-100 relative overflow-hidden" : "border-dashed border-gray-200 hover:border-black bg-gray-50/50"}`}
+                        >
                           {variantPreviewUrls[i] ? (
                             <>
-                              <img src={variantPreviewUrls[i]} alt="" className="w-full h-full object-cover" />
-                              <button type="button" onClick={(e) => { e.preventDefault(); removeVariantImage(i); }} className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 flex items-center justify-center">
-                                <span className="label-sm text-white border-b border-white mb-0 text-[10px]">Remove</span>
+                              <img
+                                src={variantPreviewUrls[i]}
+                                alt=""
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  removeVariantImage(i);
+                                }}
+                                className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 flex items-center justify-center"
+                              >
+                                <span className="label-sm text-white border-b border-white mb-0 text-[10px]">
+                                  Remove
+                                </span>
                               </button>
                             </>
                           ) : (
-                            <span className="label-sm text-gray-300 text-[11px] mb-0 italic">Add</span>
+                            <span className="label-sm text-gray-300 text-[11px] mb-0 italic">
+                              Add
+                            </span>
                           )}
-                          <input type="file" accept="image/*" multiple onChange={handleVariantImageUpload} disabled={variantImages.length >= 7} className="hidden" />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleVariantImageUpload}
+                            disabled={variantImages.length >= 7}
+                            className="hidden"
+                          />
                         </label>
                       ))}
                     </div>
@@ -409,7 +518,9 @@ const ProductDetails = () => {
                       disabled={isSubmittingVariant}
                       className="btn-primary flex-1 py-6 text-[12px]"
                     >
-                      {isSubmittingVariant ? "REGISTERING..." : "REGISTER VERSION"}
+                      {isSubmittingVariant
+                        ? "REGISTERING..."
+                        : "REGISTER VERSION"}
                     </button>
                     <button
                       type="button"

@@ -91,7 +91,7 @@ const Dashboard = () => {
                     <span className="label-sm text-[9px] px-3 py-1 bg-gray-50 rounded-full lowercase italic">Active</span>
                   </td>
                   <td className="py-6">
-                    <span className="text-sm font-medium">{product.stock || 0} units</span>
+                    <span className="text-sm font-medium">{product.quantity || 0} units</span>
                   </td>
                   <td className="py-6">
                     <button className="label-sm mb-0 text-secondary hover:text-black transition-colors">Edit</button>
