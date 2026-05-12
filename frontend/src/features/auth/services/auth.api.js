@@ -29,6 +29,16 @@ export const login = async ({ email, password }) => {
   }
 };
 
+export const logout = async () => {
+  try {
+    const response = await api.get("/logout");
+    return response.data;
+  } catch (error) {
+    console.error("Logout error:", error.response?.data || error.message);
+    throw error.response?.data || new Error("Logout failed");
+  }
+};
+
 export const getMe = async () => {
   try {
     const response = await api.get("/me");

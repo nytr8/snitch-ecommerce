@@ -1,5 +1,6 @@
-import { getMe, login, register } from "../services/auth.api";
+import { getMe, login, logout, register } from "../services/auth.api";
 import { useDispatch } from "react-redux";
+import { clearCart } from "../../cart/state/cart.slice";
 import {
   setAuthChecked,
   setError,
@@ -75,5 +76,24 @@ export const useAuth = () => {
       dispatch(setAuthChecked(true));
     }
   };
-  return { handleRegister, handleLogin, handleGetMe };
+  const handleLogout = async () => {
+    dispatch(setLoading(true));
+    dispatch(setError(null));
+    try {
+      const result = await logout();
+      dispatch(setUser(null));
+      dispatch(clearCart());
+      return { success: true, data: result };
+    } catch (error) {
+      const message = getErrorMessage(error, "Failed to logout");
+      dispatch(setError(message));
+      dispatch(setUser(null));
+      dispatch(clearCart());
+      return { success: false, message };
+    } finally {
+      dispatch(setLoading(false));
+      dispatch(setAuthChecked(true));
+    }
+  };
+  return { handleRegister, handleLogin, handleGetMe, handleLogout };
 };
