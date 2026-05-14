@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { stockOfvarient } from "../dao/product.dao.js";
 import cartModel from "../model/cart.model.js";
 import productModel from "../model/product.model.js";
@@ -8,10 +9,8 @@ const normalizeVariantId = (id) => {
 };
 
 const populateCart = async (cartId) => {
-  const cart = await cartModel
-    .findById(cartId)
-    .populate("items.product");
-  
+  const cart = await cartModel.findById(cartId).populate("items.product");
+
   if (!cart) return null;
 
   const cartObj = cart.toObject();
@@ -27,7 +26,6 @@ const populateCart = async (cartId) => {
   return cartObj;
 };
 
-
 export const addToCart = async (req, res) => {
   const productId = req.params.productId;
   const variantId = normalizeVariantId(req.params.variantId);
@@ -36,16 +34,22 @@ export const addToCart = async (req, res) => {
   try {
     const product = await productModel.findById(productId);
     if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     }
 
     let stock;
     let price;
 
     if (variantId) {
-      const variant = product.variants.find(v => v._id.toString() === variantId);
+      const variant = product.variants.find(
+        (v) => v._id.toString() === variantId,
+      );
       if (!variant) {
-        return res.status(404).json({ success: false, message: "Variant not found" });
+        return res
+          .status(404)
+          .json({ success: false, message: "Variant not found" });
       }
       stock = variant.stock;
       price = variant.price;
@@ -63,7 +67,7 @@ export const addToCart = async (req, res) => {
       (item) =>
         item.product.toString() === productId &&
         (variantId ? item.variant?.toString() === variantId : !item.variant) &&
-        item.selectedAttribute === selectedAttribute
+        item.selectedAttribute === selectedAttribute,
     );
 
     if (itemIndex > -1) {
@@ -104,7 +108,6 @@ export const addToCart = async (req, res) => {
   }
 };
 
-
 export const removeFromCart = async (req, res) => {
   const productId = req.params.productId;
   const variantId = normalizeVariantId(req.params.variantId);
@@ -113,15 +116,21 @@ export const removeFromCart = async (req, res) => {
   try {
     const cart = await cartModel.findOne({ user: req.user._id });
     if (!cart) {
-      return res.status(404).json({ success: false, message: "Cart not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Cart not found" });
     }
 
     cart.items = cart.items.filter(
       (item) =>
         !(
           item.product.toString() === productId &&
-          (variantId ? item.variant?.toString() === variantId : !item.variant) &&
-          (selectedAttribute ? item.selectedAttribute === selectedAttribute : true)
+          (variantId
+            ? item.variant?.toString() === variantId
+            : !item.variant) &&
+          (selectedAttribute
+            ? item.selectedAttribute === selectedAttribute
+            : true)
         ),
     );
 
@@ -139,7 +148,6 @@ export const removeFromCart = async (req, res) => {
   }
 };
 
-
 export const updateCartItemQuantity = async (req, res) => {
   const productId = req.params.productId;
   const variantId = normalizeVariantId(req.params.variantId);
@@ -148,12 +156,16 @@ export const updateCartItemQuantity = async (req, res) => {
   try {
     const product = await productModel.findById(productId);
     if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     }
 
     let stock;
     if (variantId) {
-      const variant = product.variants.find(v => v._id.toString() === variantId);
+      const variant = product.variants.find(
+        (v) => v._id.toString() === variantId,
+      );
       stock = variant ? variant.stock : 0;
     } else {
       stock = product.quantity;
@@ -168,18 +180,22 @@ export const updateCartItemQuantity = async (req, res) => {
 
     const cart = await cartModel.findOne({ user: req.user._id });
     if (!cart) {
-      return res.status(404).json({ success: false, message: "Cart not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Cart not found" });
     }
 
     const itemIndex = cart.items.findIndex(
       (item) =>
         item.product.toString() === productId &&
         (variantId ? item.variant?.toString() === variantId : !item.variant) &&
-        item.selectedAttribute === selectedAttribute
+        item.selectedAttribute === selectedAttribute,
     );
 
     if (itemIndex === -1) {
-      return res.status(404).json({ success: false, message: "Item not found in cart" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Item not found in cart" });
     }
 
     if (quantity <= 0) {
@@ -202,11 +218,64 @@ export const updateCartItemQuantity = async (req, res) => {
   }
 };
 
-
 export const getCart = async (req, res) => {
   try {
-    let cart = await cartModel.findOne({ user: req.user._id });
-    
+    let cart = (
+      await cartModel.aggregate(
+        [
+          {
+            $match: {
+              user: new mongoose.Types.ObjectId(req.user._id),
+            },
+          },
+          { $unwind: { path: "$items" } },
+          {
+            $lookup: {
+              from: "products",
+              localField: "items.product",
+              foreignField: "_id",
+              as: "items.product",
+            },
+          },
+          { $unwind: { path: "$items.product" } },
+          {
+            $unwind: { path: "$items.product.variants" },
+          },
+          {
+            $match: {
+              $expr: {
+                $eq: ["$items.variant", "$items.product.variants._id"],
+              },
+            },
+          },
+          {
+            $addFields: {
+              itemPrice: {
+                price: {
+                  $multiply: [
+                    "$items.quantity",
+                    "$items.product.variants.price.amount",
+                  ],
+                },
+                currency: "$items.product.variants.price.currency",
+              },
+            },
+          },
+          {
+            $group: {
+              _id: "$_id",
+              totalPrice: { $sum: "$itemPrice.price" },
+              currency: {
+                $first: "$itemPrice.currency",
+              },
+              items: { $push: "$items" },
+            },
+          },
+        ],
+        { maxTimeMS: 60000, allowDiskUse: true },
+      )
+    )[0];
+
     if (!cart) {
       cart = await cartModel.create({ user: req.user._id, items: [] });
     }
@@ -221,5 +290,3 @@ export const getCart = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
-

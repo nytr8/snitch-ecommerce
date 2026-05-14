@@ -48,7 +48,7 @@ export const router = createBrowserRouter([
             element: <Navigate to="/seller/dashboard" replace />,
           },
           {
-            path: "seller/dashboard",
+            path: "dashboard",
             element: (
               <Protected sellerOnly>
                 <Dashboard />
@@ -56,7 +56,7 @@ export const router = createBrowserRouter([
             ),
           },
           {
-            path: "seller/create-product",
+            path: "create-product",
             element: (
               <Protected sellerOnly>
                 <CreateProduct />
@@ -64,7 +64,7 @@ export const router = createBrowserRouter([
             ),
           },
           {
-            path: "seller/products",
+            path: "products",
             element: (
               <Protected sellerOnly>
                 <SellerProducts />
@@ -72,7 +72,7 @@ export const router = createBrowserRouter([
             ),
           },
           {
-            path: "seller/product/:id",
+            path: "product/:id",
             element: (
               <Protected sellerOnly>
                 <ProductDetails />

@@ -29,17 +29,28 @@ const Cart = () => {
       const product = item?.product || {};
       const variant = item?.variant || {};
       const quantity = Number(item?.quantity) > 0 ? Number(item.quantity) : 1;
-      const amount = Number(
-        item?.price?.amount ??
-          variant?.price?.amount ??
-          product?.price?.amount ??
-          0,
+
+      // Get the stored price (price when item was added to cart)
+      const storedAmount = Number(item?.price?.amount ?? 0);
+
+      // Get the current price (could be from variant or product)
+      const currentAmount = Number(
+        variant?.price?.amount ?? product?.price?.amount ?? 0,
       );
+
+      // Use current price for display
+      const amount = currentAmount || storedAmount;
+
       const currency =
         item?.price?.currency ||
         variant?.price?.currency ||
         product?.price?.currency ||
         DEFAULT_CURRENCY;
+
+      // Calculate price difference
+      const priceDifference = currentAmount - storedAmount;
+      const savings = Math.abs(priceDifference);
+
       const attributeValues = Array.isArray(variant?.attributes?.values)
         ? variant.attributes.values.filter(Boolean)
         : [];
@@ -59,6 +70,11 @@ const Cart = () => {
         quantity,
         amount,
         currency,
+        storedAmount,
+        currentAmount,
+        priceDifference,
+        savings,
+        priceChanged: priceDifference !== 0,
       };
     });
   }, [cartItems]);
@@ -142,6 +158,25 @@ const Cart = () => {
                           {formatMoney(item.amount, item.currency)}
                         </p>
                       </div>
+                      {item.priceChanged && (
+                        <div className="mb-4">
+                          {item.priceDifference < 0 ? (
+                            <p className="label-sm text-green-700 lowercase italic font-medium">
+                              you saved{" "}
+                              {formatMoney(item.savings, item.currency)} you
+                              will get it at{" "}
+                              {formatMoney(item.currentAmount, item.currency)}
+                            </p>
+                          ) : (
+                            <p className="label-sm text-red-600 lowercase italic font-medium">
+                              you will need too pay{" "}
+                              {formatMoney(item.savings, item.currency)} more
+                              now its{" "}
+                              {formatMoney(item.currentAmount, item.currency)}
+                            </p>
+                          )}
+                        </div>
+                      )}
                       <div className="flex gap-8 flex-wrap mb-8">
                         <div className="space-y-1">
                           <p className="label-xs text-gray-400 uppercase tracking-widest">
