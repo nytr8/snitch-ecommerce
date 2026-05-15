@@ -2,9 +2,11 @@ import express from "express";
 import { authenticateUser } from "../middleware/auth.middleware.js";
 import {
   addToCart,
+  createOrderController,
   getCart,
   removeFromCart,
   updateCartItemQuantity,
+  verifyOrderController,
 } from "../controller/cart.controller.js";
 import { addToCartValidator } from "../validation/cart.validator.js";
 
@@ -27,6 +29,17 @@ cartRouter.put(
   authenticateUser,
   addToCartValidator,
   updateCartItemQuantity,
+);
+cartRouter.post(
+  "/payment/create/order",
+  authenticateUser,
+  createOrderController,
+);
+
+cartRouter.post(
+  "/payment/verify/order",
+  authenticateUser,
+  verifyOrderController,
 );
 
 export default cartRouter;

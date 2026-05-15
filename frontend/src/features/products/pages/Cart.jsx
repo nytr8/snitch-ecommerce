@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useCart } from "../../cart/hook/useCart";
-
+import { useRazorpay } from "react-razorpay";
 const DEFAULT_CURRENCY = "INR";
 const IMAGE_FALLBACK =
   "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=400&q=80";
@@ -14,12 +14,17 @@ const formatMoney = (amount, currency) => {
 };
 
 const Cart = () => {
-  const { handleGetCart, handleRemoveFromCart, handleUpdateQuantity } =
-    useCart();
+  const user = useSelector((state) => state?.auth?.user);
+  const { error, isLoading, Razorpay } = useRazorpay();
+  const {
+    handleGetCart,
+    handleRemoveFromCart,
+    handleUpdateQuantity,
+    handleCreateCartOrder,
+  } = useCart();
   const cartItems = useSelector((state) =>
     Array.isArray(state?.cart?.items) ? state.cart.items : [],
   );
-
   useEffect(() => {
     handleGetCart();
   }, [handleGetCart]);
@@ -108,7 +113,34 @@ const Cart = () => {
       });
     }
   };
+  async function handleCheckout() {
+    const order = await handleCreateCartOrder();
+    console.log(order);
 
+    const options = {
+      key: "rzp_test_Spd7jeRDGDEVbN",
+      amount: order.amount, // Amount in paise
+      currency: order.currency,
+      name: "snitch ecommerce",
+      description: "Test Transaction",
+      order_id: order.id, // Generate order_id on server
+      handler: (response) => {
+        console.log(response);
+        alert("Payment Successful!");
+      },
+      prefill: {
+        name: user?.fullname || "John Doe",
+        email: user?.email || "john.doe@example.com",
+        contact: user?.contact || "9999999999",
+      },
+      theme: {
+        color: "#000000",
+      },
+    };
+
+    const razorpayInstance = new Razorpay(options);
+    razorpayInstance.open();
+  }
   return (
     <div className="min-h-screen bg-background text-on-background">
       <main className="max-w-7xl mx-auto px-edge py-24">
@@ -283,6 +315,9 @@ const Cart = () => {
                 </p>
               </div>
               <button
+                onClick={() => {
+                  handleCheckout();
+                }}
                 className="btn-primary w-full py-6 text-sm uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isEmpty}
               >

@@ -4,9 +4,16 @@ const api = axios.create({
   withCredentials: true,
 });
 
-export const addToCart = async ({ productId, variantId, quantity, selectedAttribute }) => {
+export const addToCart = async ({
+  productId,
+  variantId,
+  quantity,
+  selectedAttribute,
+}) => {
   try {
-    const url = variantId ? `/add/${productId}/${variantId}` : `/add/${productId}`;
+    const url = variantId
+      ? `/add/${productId}/${variantId}`
+      : `/add/${productId}`;
     const response = await api.post(url, {
       quantity,
       selectedAttribute,
@@ -28,22 +35,38 @@ export const getCart = async () => {
   }
 };
 
-export const removeFromCart = async ({ productId, variantId, selectedAttribute }) => {
+export const removeFromCart = async ({
+  productId,
+  variantId,
+  selectedAttribute,
+}) => {
   try {
-    const url = variantId ? `/remove/${productId}/${variantId}` : `/remove/${productId}`;
+    const url = variantId
+      ? `/remove/${productId}/${variantId}`
+      : `/remove/${productId}`;
     const response = await api.delete(url, {
-      params: { selectedAttribute }
+      params: { selectedAttribute },
     });
     return response.data;
   } catch (error) {
-    console.error("Remove from cart error:", error.response?.data || error.message);
+    console.error(
+      "Remove from cart error:",
+      error.response?.data || error.message,
+    );
     throw error.response?.data || new Error("Failed to remove from cart");
   }
 };
 
-export const updateCartQuantity = async ({ productId, variantId, quantity, selectedAttribute }) => {
+export const updateCartQuantity = async ({
+  productId,
+  variantId,
+  quantity,
+  selectedAttribute,
+}) => {
   try {
-    const url = variantId ? `/update/${productId}/${variantId}` : `/update/${productId}`;
+    const url = variantId
+      ? `/update/${productId}/${variantId}`
+      : `/update/${productId}`;
     const response = await api.put(url, {
       quantity,
       selectedAttribute,
@@ -55,4 +78,7 @@ export const updateCartQuantity = async ({ productId, variantId, quantity, selec
   }
 };
 
-
+export const createCartOrder = async () => {
+  const response = await api.post("/payment/create/order", {});
+  return response.data;
+};
