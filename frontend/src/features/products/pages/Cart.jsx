@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useCart } from "../../cart/hook/useCart";
 import { useRazorpay } from "react-razorpay";
@@ -16,11 +16,13 @@ const formatMoney = (amount, currency) => {
 const Cart = () => {
   const user = useSelector((state) => state?.auth?.user);
   const { error, isLoading, Razorpay } = useRazorpay();
+  const navigate = useNavigate();
   const {
     handleGetCart,
     handleRemoveFromCart,
     handleUpdateQuantity,
     handleCreateCartOrder,
+    handleVerifyCartOrder,
   } = useCart();
   const cartItems = useSelector((state) =>
     Array.isArray(state?.cart?.items) ? state.cart.items : [],
@@ -124,9 +126,11 @@ const Cart = () => {
       name: "snitch ecommerce",
       description: "Test Transaction",
       order_id: order.id, // Generate order_id on server
-      handler: (response) => {
-        console.log(response);
-        alert("Payment Successful!");
+      handler: async (response) => {
+        const isValid = await handleVerifyCartOrder(response);
+        if (isValid) {
+          navigate(`/order-success?order_id=${response.razorpay_order_id}`);
+        }
       },
       prefill: {
         name: user?.fullname || "John Doe",

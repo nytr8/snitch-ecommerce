@@ -7,6 +7,7 @@ import {
   getCart,
   removeFromCart,
   updateCartQuantity,
+  verifyCartOrder,
 } from "../service/cart.api";
 
 export const useCart = () => {
@@ -80,6 +81,22 @@ export const useCart = () => {
       throw error;
     }
   }, []);
+  const handleVerifyCartOrder = useCallback(
+    async ({ razorpay_order_id, razorpay_payment_id, razorpay_signature }) => {
+      try {
+        const response = await verifyCartOrder({
+          razorpay_order_id,
+          razorpay_payment_id,
+          razorpay_signature,
+        });
+        return response.success;
+      } catch (error) {
+        console.error("Error creating cart order:", error);
+        throw error;
+      }
+    },
+    [],
+  );
 
   return {
     handleAddToCart,
@@ -87,5 +104,6 @@ export const useCart = () => {
     handleRemoveFromCart,
     handleUpdateQuantity,
     handleCreateCartOrder,
+    handleVerifyCartOrder,
   };
 };
